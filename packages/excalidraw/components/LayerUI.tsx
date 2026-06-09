@@ -284,6 +284,24 @@ const LayerUI = ({
     );
   };
 
+  const renderPageHeading = () => {
+    if (
+      appState.viewModeEnabled ||
+      appState.openDialog?.name === "elementLinkSelector"
+    ) {
+      return null;
+    }
+
+    return (
+      <div className="shapes-section App-page-heading-top">
+        {renderWelcomeScreen && (
+          <tunnels.WelcomeScreenToolbarHintTunnel.Out />
+        )}
+        <tunnels.ToolbarHeadingTunnel.Out />
+      </div>
+    );
+  };
+
   const renderToolbar = () => {
     if (
       appState.viewModeEnabled ||
@@ -296,11 +314,7 @@ const LayerUI = ({
       <Section heading="shapes" className="shapes-section">
         {(heading: React.ReactNode) => (
           <div style={{ position: "relative" }}>
-            {renderWelcomeScreen && (
-              <tunnels.WelcomeScreenToolbarHintTunnel.Out />
-            )}
             <Stack.Col gap={spacing.toolbarColGap} align="center">
-              <tunnels.ToolbarHeadingTunnel.Out />
               <Stack.Row
                 gap={spacing.toolbarRowGap}
                 className={clsx("App-toolbar-container", {
@@ -400,6 +414,7 @@ const LayerUI = ({
               {shouldRenderSelectedShapeActions && renderSelectedShapeActions()}
             </div>
           </Stack.Col>
+          {renderPageHeading()}
           <div
             className={clsx(
               "layer-ui__wrapper__top-right zen-mode-transition",
