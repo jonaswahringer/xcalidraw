@@ -385,18 +385,36 @@ const clearStoredDirectoryHandle = async () => {
   await del(PERIODIC_BACKUP_DIR_HANDLE_KEY, backupStore);
 };
 
-export const pickBackupDirectory = async (): Promise<boolean> => {
+export const pickBackupDirectory = (): Promise<boolean> => {
   const unavailableReason = getBackupUnavailableReason();
   if (unavailableReason) {
     setStatus({ lastError: unavailableReason });
-    return false;
+    return Promise.resolve(false);
   }
 
+  const showDirectoryPicker = getShowDirectoryPicker();
+  if (!showDirectoryPicker) {
+    const reason = isLikelyBraveBrowser()
+      ? "Brave disables folder backup by default. Open brave://flags/#file-system-access-api, set it to Enabled, then relaunch Brave."
+      : "Folder backup is not available in this browser. Use Chrome or Edge, or enable the File System Access API flag in Brave.";
+    setStatus({ lastError: reason });
+    return Promise.resolve(false);
+  }
+
+  // Must be invoked synchronously while the user gesture is still active.
+  const pickerPromise = showDirectoryPicker({
+    mode: "readwrite",
+    startIn: "documents",
+  });
+
+  return finishPickingBackupDirectory(pickerPromise);
+};
+
+const finishPickingBackupDirectory = async (
+  pickerPromise: Promise<BackupDirectoryHandle>,
+): Promise<boolean> => {
   try {
-    const dirHandle = await getShowDirectoryPicker()!({
-      mode: "readwrite",
-      startIn: "documents",
-    });
+    const dirHandle = await pickerPromise;
 
     const hasPermission = await ensureDirectoryPermission(dirHandle);
     if (!hasPermission) {

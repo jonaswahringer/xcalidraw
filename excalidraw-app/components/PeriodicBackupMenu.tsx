@@ -22,13 +22,40 @@ const formatLastBackup = (timestamp: number | null) => {
   return new Date(timestamp).toLocaleTimeString();
 };
 
+const showBackupToast = (
+  excalidrawAPI: ExcalidrawImperativeAPI | null,
+  message: string,
+) => {
+  excalidrawAPI?.setToast({
+    message,
+    duration: 8000,
+    closable: true,
+  });
+};
+
 const startBackupSetup = (
   excalidrawAPI: ExcalidrawImperativeAPI | null,
   event?: Event,
 ) => {
   event?.preventDefault();
-  pickBackupDirectory().then((enabled) => {
-    if (enabled && excalidrawAPI) {
+
+  const unavailableReason = getBackupUnavailableReason();
+  if (unavailableReason) {
+    void pickBackupDirectory();
+    showBackupToast(excalidrawAPI, unavailableReason);
+    return;
+  }
+
+  void pickBackupDirectory().then((enabled) => {
+    if (!enabled) {
+      const { lastError } = getBackupStatus();
+      if (lastError) {
+        showBackupToast(excalidrawAPI, lastError);
+      }
+      return;
+    }
+
+    if (excalidrawAPI) {
       void runPeriodicBackup(excalidrawAPI, { force: true });
     }
   });

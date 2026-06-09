@@ -1,5 +1,4 @@
 import { KEYS } from "@excalidraw/common";
-import { CaptureUpdateAction } from "@excalidraw/excalidraw";
 import { Island } from "@excalidraw/excalidraw/components/Island";
 import { useTunnels } from "@excalidraw/excalidraw/context/tunnels";
 import { useUIAppState } from "@excalidraw/excalidraw/context/ui-appState";
@@ -53,11 +52,10 @@ export const PageHeading = ({
       return;
     }
 
-    excalidrawAPI.updateScene({
-      appState: {
-        toast: { message: backupStatus.lastError, duration: 5000 },
-      },
-      captureUpdate: CaptureUpdateAction.NEVER,
+    excalidrawAPI.setToast({
+      message: backupStatus.lastError,
+      duration: 5000,
+      closable: true,
     });
   }, [backupStatus.lastError, excalidrawAPI]);
 
