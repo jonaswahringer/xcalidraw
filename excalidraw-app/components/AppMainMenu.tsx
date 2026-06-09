@@ -11,6 +11,7 @@ import { LanguageList } from "../app-language/LanguageList";
 
 import { saveDebugState } from "./DebugCanvas";
 import { DocsMenu } from "./DocsMenu";
+import { PeriodicBackupMenu } from "./PeriodicBackupMenu";
 
 export const AppMainMenu: React.FC<{
   excalidrawAPI: ExcalidrawImperativeAPI | null;
@@ -22,8 +23,9 @@ export const AppMainMenu: React.FC<{
 }> = React.memo((props) => {
   return (
     <MainMenu>
-      <DocsMenu excalidrawAPI={props.excalidrawAPI} />
       <MainMenu.DefaultItems.LoadScene />
+      <DocsMenu excalidrawAPI={props.excalidrawAPI} />
+      <PeriodicBackupMenu excalidrawAPI={props.excalidrawAPI} />
       <MainMenu.DefaultItems.SaveToActiveFile />
       <MainMenu.DefaultItems.Export />
       <MainMenu.DefaultItems.SaveAsImage />

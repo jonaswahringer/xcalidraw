@@ -96,6 +96,7 @@ import Collab, {
 import { AppFooter } from "./components/AppFooter";
 import { AppMainMenu } from "./components/AppMainMenu";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
+import { BackupProgressIndicator } from "./components/BackupProgressIndicator";
 import { PageHeading } from "./components/PageHeading";
 import {
   ExportToExcalidrawPlus,
@@ -146,6 +147,13 @@ import {
   importPagesFromLocalStorage,
   savePagesToLocalStorage,
 } from "./data/pagesStorage";
+import { usePeriodicBackup } from "./hooks/usePeriodicBackup";
+import {
+  flushScheduledBackup,
+  markBackupDirty,
+  runPeriodicBackup,
+  shouldPreventUnloadForBackup,
+} from "./data/periodicBackup";
 
 import type { CollabAPI } from "./collab/Collab";
 
@@ -408,6 +416,8 @@ const ExcalidrawWrapper = () => {
   });
   const collabError = useAtomValue(collabErrorIndicatorAtom);
 
+  usePeriodicBackup(excalidrawAPI, isCollaborating);
+
   useHandleLibrary({
     excalidrawAPI,
     adapter: LibraryIndexedDBAdapter,
@@ -651,12 +661,19 @@ const ExcalidrawWrapper = () => {
     const unloadHandler = (event: BeforeUnloadEvent) => {
       LocalData.flushSave();
 
-      if (
+      if (excalidrawAPI) {
+        flushScheduledBackup();
+        void runPeriodicBackup(excalidrawAPI);
+      }
+
+      const shouldPreventUnload =
         excalidrawAPI &&
-        LocalData.fileStorage.shouldPreventUnload(
+        (LocalData.fileStorage.shouldPreventUnload(
           excalidrawAPI.getSceneElements(),
-        )
-      ) {
+        ) ||
+          (!isCollaborating && shouldPreventUnloadForBackup()));
+
+      if (shouldPreventUnload) {
         if (import.meta.env.VITE_APP_DISABLE_PREVENT_UNLOAD !== "true") {
           preventUnload(event);
         } else {
@@ -670,7 +687,7 @@ const ExcalidrawWrapper = () => {
     return () => {
       window.removeEventListener(EVENT.BEFORE_UNLOAD, unloadHandler);
     };
-  }, [excalidrawAPI]);
+  }, [excalidrawAPI, isCollaborating]);
 
   const onChange = (
     elements: readonly OrderedExcalidrawElement[],
@@ -715,6 +732,9 @@ const ExcalidrawWrapper = () => {
 
     if (excalidrawAPI) {
       savePagesToLocalStorage(excalidrawAPI);
+      if (!collabAPI?.isCollaborating()) {
+        markBackupDirty();
+      }
     }
 
     // Render the debug scene if the debug canvas is available
@@ -984,6 +1004,7 @@ const ExcalidrawWrapper = () => {
         }}
       >
         <PageHeading excalidrawAPI={excalidrawAPI} />
+        <BackupProgressIndicator />
         <AppMainMenu
           excalidrawAPI={excalidrawAPI}
           onCollabDialogOpen={onCollabDialogOpen}

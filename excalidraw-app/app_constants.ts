@@ -36,6 +36,11 @@ export const FIREBASE_STORAGE_PREFIXES = {
 
 export const ROOM_ID_BYTES = 10;
 
+export const BACKUP_DEBOUNCE_MS = 2000;
+export const SUGGESTED_BACKUP_DIR = "/Users/jonasw/xcalidraw/backup";
+export const PERIODIC_BACKUP_ENABLED_KEY = "excalidraw-periodic-backup-enabled";
+export const PERIODIC_BACKUP_DIR_HANDLE_KEY = "periodic-backup-dir-handle";
+
 export const STORAGE_KEYS = {
   LOCAL_STORAGE_ELEMENTS: "excalidraw",
   LOCAL_STORAGE_APP_STATE: "excalidraw-state",

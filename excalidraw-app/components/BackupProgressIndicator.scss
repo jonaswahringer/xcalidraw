@@ -1,0 +1,23 @@
+.excalidraw-app-backup-progress {
+  animation: excalidraw-backup-debounce-progress linear forwards;
+  background: var(--color-primary);
+  bottom: auto;
+  height: 2px;
+  left: 0;
+  margin-top: calc(0.5rem + 1.5rem);
+  pointer-events: none;
+  position: absolute;
+  top: 100%;
+  width: 0;
+
+}
+
+@keyframes excalidraw-backup-debounce-progress {
+  from {
+    width: 0%;
+  }
+
+  to {
+    width: 100%;
+  }
+}
