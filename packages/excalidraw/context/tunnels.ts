@@ -16,6 +16,7 @@ type TunnelsContextValue = {
   OverwriteConfirmDialogTunnel: Tunnel;
   TTDDialogTriggerTunnel: Tunnel;
   ToolbarHeadingTunnel: Tunnel;
+  ToolbarFooterTunnel: Tunnel;
   // this can be removed once we create jotai stores per each editor
   // instance
   tunnelsJotai: ReturnType<typeof createIsolation>;
@@ -41,6 +42,7 @@ export const useInitializeTunnels = () => {
       OverwriteConfirmDialogTunnel: tunnel(),
       TTDDialogTriggerTunnel: tunnel(),
       ToolbarHeadingTunnel: tunnel(),
+      ToolbarFooterTunnel: tunnel(),
       tunnelsJotai,
     };
   }, []);

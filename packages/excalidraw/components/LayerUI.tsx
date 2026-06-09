@@ -334,6 +334,7 @@ const LayerUI = ({
                     editorInterface={editorInterface}
                     app={app}
                   />
+                  <tunnels.ToolbarFooterTunnel.Out />
                   {heading}
                   <Stack.Row gap={spacing.toolbarInnerRowGap}>
                     <PenModeButton

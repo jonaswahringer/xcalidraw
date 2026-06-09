@@ -4,9 +4,18 @@
   width: 100%;
   pointer-events: var(--ui-pointerEvents);
 
+  &__row {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    max-width: min(28rem, 85vw);
+  }
+
   &__island {
-    max-width: min(20rem, 70vw);
     box-shadow: var(--shadow-island);
+    flex: 1;
+    max-width: min(20rem, 60vw);
+    min-width: 0;
   }
 
   &__button {
@@ -25,6 +34,7 @@
     padding: 0.2rem 0.55rem;
     text-overflow: ellipsis;
     white-space: nowrap;
+    width: 100%;
 
     &:hover {
       background: var(--button-hover-bg);
