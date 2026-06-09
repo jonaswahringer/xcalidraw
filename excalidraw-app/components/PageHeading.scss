@@ -1,0 +1,56 @@
+.excalidraw-app-page-heading {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  pointer-events: var(--ui-pointerEvents);
+
+  &__island {
+    max-width: min(20rem, 70vw);
+    box-shadow: var(--shadow-island);
+  }
+
+  &__button {
+    appearance: none;
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius-lg);
+    color: var(--text-primary-color);
+    cursor: pointer;
+    font-family: var(--ui-font);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    max-width: 100%;
+    overflow: hidden;
+    padding: 0.2rem 0.55rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+
+    &:hover {
+      background: var(--button-hover-bg);
+      color: var(--color-primary);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--color-primary-light);
+    }
+  }
+
+  &__input {
+    background: transparent;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--border-radius-lg);
+    box-sizing: border-box;
+    color: var(--text-primary-color);
+    font-family: var(--ui-font);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.2;
+    min-width: 8rem;
+    outline: none;
+    padding: 0.2rem 0.55rem;
+    text-align: center;
+    width: 100%;
+  }
+}

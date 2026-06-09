@@ -22,12 +22,12 @@ import Footer from "./components/footer/FooterCenter";
 import LiveCollaborationTrigger from "./components/live-collaboration/LiveCollaborationTrigger";
 import MainMenu from "./components/main-menu/MainMenu";
 import WelcomeScreen from "./components/welcome-screen/WelcomeScreen";
-import { defaultLang } from "./i18n";
+import { EditorJotaiProvider, editorJotaiStore } from "./editor-jotai";
 import {
   useAppStateValue as _useAppStateValue,
   useOnAppStateChange as _useOnAppStateChange,
 } from "./hooks/useAppStateValue";
-import { EditorJotaiProvider, editorJotaiStore } from "./editor-jotai";
+import { defaultLang } from "./i18n";
 import polyfill from "./polyfill";
 
 import "./css/app.scss";
@@ -308,103 +308,78 @@ export const Excalidraw = React.memo(ExcalidrawBase, areEqual);
 Excalidraw.displayName = "Excalidraw";
 
 export {
-  getSceneVersion,
+  getNonDeletedElements, getSceneVersion,
   hashElementsVersion,
-  hashString,
-  getNonDeletedElements,
+  hashString
 } from "@excalidraw/element";
 
-export { getTextFromElements } from "@excalidraw/element";
-export { isInvisiblySmallElement } from "@excalidraw/element";
+export { getTextFromElements, isInvisiblySmallElement } from "@excalidraw/element";
 
-export { defaultLang, useI18n, languages } from "./i18n";
 export {
   restoreAppState,
   restoreElement,
   restoreElements,
-  restoreLibraryItems,
+  restoreLibraryItems
 } from "./data/restore";
+export { defaultLang, languages, useI18n } from "./i18n";
 
 export { reconcileElements } from "./data/reconcile";
 
 export {
-  exportToCanvas,
-  exportToBlob,
-  exportToSvg,
-  exportToClipboard,
+  exportToBlob, exportToCanvas, exportToClipboard, exportToSvg
 } from "@excalidraw/utils/export";
 
-export { serializeAsJSON, serializeLibraryAsJSON } from "./data/json";
-export {
-  loadFromBlob,
-  loadSceneOrLibraryFromBlob,
-  loadLibraryFromBlob,
-} from "./data/blob";
-export { mergeLibraryItems, getLibraryItemsHash } from "./data/library";
 export { isLinearElement } from "@excalidraw/element";
+export {
+  loadFromBlob, loadLibraryFromBlob, loadSceneOrLibraryFromBlob
+} from "./data/blob";
+export { serializeAsJSON, serializeLibraryAsJSON } from "./data/json";
+export { getLibraryItemsHash, mergeLibraryItems } from "./data/library";
 
 export {
-  FONT_FAMILY,
-  THEME,
-  MIME_TYPES,
-  ROUNDNESS,
-  DEFAULT_LASER_COLOR,
-  UserIdleState,
-  normalizeLink,
-  sceneCoordsToViewportCoords,
-  viewportCoordsToSceneCoords,
-  getFormFactor,
-  throttleRAF,
+  DEFAULT_LASER_COLOR, FONT_FAMILY, getFormFactor, MIME_TYPES, normalizeLink, ROUNDNESS, sceneCoordsToViewportCoords, THEME, throttleRAF, UserIdleState, viewportCoordsToSceneCoords
 } from "@excalidraw/common";
 
 export {
-  mutateElement,
-  newElementWith,
-  bumpVersion,
+  bumpVersion, mutateElement,
+  newElementWith
 } from "@excalidraw/element";
 
 export { CaptureUpdateAction } from "@excalidraw/element";
 
 export { parseLibraryTokensFromUrl, useHandleLibrary } from "./data/library";
 
-export { Sidebar } from "./components/Sidebar/Sidebar";
-export { Button } from "./components/Button";
-export { Footer };
-export { MainMenu };
-export { Ellipsify } from "./components/Ellipsify";
 export {
-  useEditorInterface,
-  useStylesPanelMode,
-  useExcalidrawAPI,
-  ExcalidrawAPIContext,
+  ExcalidrawAPIContext, useEditorInterface, useExcalidrawAPI, useStylesPanelMode
 } from "./components/App";
+export { Button } from "./components/Button";
+export { Ellipsify } from "./components/Ellipsify";
+export { Sidebar } from "./components/Sidebar/Sidebar";
+export { Footer, MainMenu };
 
-export { WelcomeScreen };
-export { LiveCollaborationTrigger };
 export { Stats } from "./components/Stats";
+export { LiveCollaborationTrigger, WelcomeScreen };
 
 export { DefaultSidebar } from "./components/DefaultSidebar";
 export { TTDDialog } from "./components/TTDDialog/TTDDialog";
 export { TTDDialogTrigger } from "./components/TTDDialog/TTDDialogTrigger";
-export { TTDStreamFetch } from "./components/TTDDialog/utils/TTDStreamFetch";
 export type {
-  TTDPersistenceAdapter,
   SavedChat,
-  SavedChats,
+  SavedChats, TTDPersistenceAdapter
 } from "./components/TTDDialog/types";
+export { TTDStreamFetch } from "./components/TTDDialog/utils/TTDStreamFetch";
 
-export { zoomToFitBounds } from "./actions/actionCanvas";
 export {
-  getCommonBounds,
-  getVisibleSceneBounds,
-  convertToExcalidrawElements,
+  convertToExcalidrawElements, getCommonBounds,
+  getVisibleSceneBounds
 } from "@excalidraw/element";
+export { zoomToFitBounds } from "./actions/actionCanvas";
 
 export { elementsOverlappingBBox } from "@excalidraw/element";
 
+export { isElementLink } from "@excalidraw/element";
 export { DiagramToCodePlugin } from "./components/DiagramToCodePlugin/DiagramToCodePlugin";
 export { getDataURL } from "./data/blob";
-export { isElementLink } from "@excalidraw/element";
 
 export { Fonts } from "./fonts/Fonts";
 
@@ -413,9 +388,8 @@ export { setCustomTextMetricsProvider } from "@excalidraw/element";
 export { CommandPalette } from "./components/CommandPalette/CommandPalette";
 
 export {
-  renderSpreadsheet,
-  tryParseSpreadsheet,
-  isSpreadsheetValidForChartType,
+  isSpreadsheetValidForChartType, renderSpreadsheet,
+  tryParseSpreadsheet
 } from "./charts";
 
 // -----------------------------------------------------------------------------
@@ -450,4 +424,4 @@ export function useExcalidrawStateValue(
 
 export { _useOnAppStateChange as useOnExcalidrawStateChange };
 
-export { applyDarkModeFilter };
+  export { applyDarkModeFilter };

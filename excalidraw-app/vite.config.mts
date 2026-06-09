@@ -1,12 +1,12 @@
+import react from "@vitejs/plugin-react";
 import path from "path";
 import { defineConfig, loadEnv } from "vite";
-import react from "@vitejs/plugin-react";
-import svgrPlugin from "vite-plugin-svgr";
-import { ViteEjsPlugin } from "vite-plugin-ejs";
-import { VitePWA } from "vite-plugin-pwa";
 import checker from "vite-plugin-checker";
+import { ViteEjsPlugin } from "vite-plugin-ejs";
 import { createHtmlPlugin } from "vite-plugin-html";
+import { VitePWA } from "vite-plugin-pwa";
 import Sitemap from "vite-plugin-sitemap";
+import svgrPlugin from "vite-plugin-svgr";
 import { woff2BrowserPlugin } from "../scripts/woff2/woff2-vite-plugins";
 export default defineConfig(({ mode }) => {
   // To load .env variables
@@ -216,7 +216,7 @@ export default defineConfig(({ mode }) => {
               },
             },
           ],
-          maximumFileSizeToCacheInBytes: 2.3 * 1024 ** 2, // 2.3MB
+          maximumFileSizeToCacheInBytes: 2.6 * 1024 ** 2, // 2.3MB
         },
         manifest: {
           short_name: "Excalidraw",

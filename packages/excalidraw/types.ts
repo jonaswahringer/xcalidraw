@@ -1,9 +1,9 @@
 import type {
+  EditorInterface,
   IMAGE_MIME_TYPES,
+  MIME_TYPES,
   UserIdleState,
   throttleRAF,
-  MIME_TYPES,
-  EditorInterface,
 } from "@excalidraw/common";
 
 import type { LinearElementEditor } from "@excalidraw/element";
@@ -11,35 +11,35 @@ import type { LinearElementEditor } from "@excalidraw/element";
 import type { MaybeTransformHandleType } from "@excalidraw/element";
 
 import type {
-  PointerType,
-  ExcalidrawLinearElement,
-  NonDeletedExcalidrawElement,
-  NonDeleted,
-  TextAlign,
-  ExcalidrawElement,
-  GroupId,
-  ExcalidrawBindableElement,
   Arrowhead,
-  FontFamilyValues,
-  FileId,
-  Theme,
-  StrokeRoundness,
-  ExcalidrawEmbeddableElement,
-  ExcalidrawMagicFrameElement,
-  ExcalidrawFrameLikeElement,
-  ExcalidrawElementType,
-  ExcalidrawIframeLikeElement,
-  OrderedExcalidrawElement,
-  ExcalidrawNonSelectionElement,
   BindMode,
+  ExcalidrawBindableElement,
+  ExcalidrawElement,
+  ExcalidrawElementType,
+  ExcalidrawEmbeddableElement,
+  ExcalidrawFrameLikeElement,
+  ExcalidrawIframeLikeElement,
+  ExcalidrawLinearElement,
+  ExcalidrawMagicFrameElement,
+  ExcalidrawNonSelectionElement,
   ExcalidrawTextElement,
+  FileId,
+  FontFamilyValues,
+  GroupId,
+  NonDeleted,
+  NonDeletedExcalidrawElement,
+  OrderedExcalidrawElement,
+  PointerType,
+  StrokeRoundness,
+  TextAlign,
+  Theme,
 } from "@excalidraw/element/types";
 
 import type {
-  Merge,
-  MaybePromise,
-  ValueOf,
   MakeBrand,
+  MaybePromise,
+  Merge,
+  ValueOf,
 } from "@excalidraw/common/utility-types";
 
 import type {
@@ -53,15 +53,15 @@ import type { Action } from "./actions/types";
 import type { Spreadsheet } from "./charts";
 import type { ClipboardData } from "./clipboard";
 import type App from "./components/App";
-import type Library from "./data/library";
 import type { ContextMenuItems } from "./components/ContextMenu";
-import type { SnapLine } from "./snapping";
+import type Library from "./data/library";
 import type { ImportedDataState } from "./data/types";
+import type { SnapLine } from "./snapping";
 
-import type { Language } from "./i18n";
-import type { isOverScrollBars } from "./scene/scrollbars";
 import type React from "react";
 import type { JSX } from "react";
+import type { Language } from "./i18n";
+import type { isOverScrollBars } from "./scene/scrollbars";
 
 export type { App };
 
@@ -548,6 +548,20 @@ export type LibraryItemsSource =
   | MaybePromise<LibraryItems_anyVersion | Blob>;
 // -----------------------------------------------------------------------------
 
+/** Public page metadata exposed via the imperative API. */
+export type PageInfo = {
+  id: string;
+  name: string;
+};
+
+/** Internal snapshot of a page's scene and persisted app state. */
+export type PageSnapshot = {
+  id: string;
+  name: string;
+  elements: readonly ExcalidrawElement[];
+  appState: Partial<AppState>;
+};
+
 export type ExcalidrawInitialDataState = Merge<
   ImportedDataState,
   {
@@ -1016,6 +1030,16 @@ export interface ExcalidrawImperativeAPI {
   ) => UnsubscribeCallback;
   onStateChange: InstanceType<typeof App>["onStateChange"];
   onEvent: InstanceType<typeof App>["onEvent"];
+  switchPage(pageId: string): void;
+  createPage(name?: string): string;
+  renamePage(pageId: string, name: string): void;
+  movePage(pageId: string, newIndex: number): void;
+  deletePage(pageId: string): void;
+  getPages(): { id: string; name: string }[];
+  getActivePageId(): string;
+  getPageSnapshots(): readonly PageSnapshot[];
+  loadPages(pages: PageSnapshot[], activePageId: string): void;
+  onPagesChange: (callback: () => void) => UnsubscribeCallback;
 }
 
 export type FrameNameBounds = {
