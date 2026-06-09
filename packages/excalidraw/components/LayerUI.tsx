@@ -284,6 +284,93 @@ const LayerUI = ({
     );
   };
 
+  const renderToolbar = () => {
+    if (
+      appState.viewModeEnabled ||
+      appState.openDialog?.name === "elementLinkSelector"
+    ) {
+      return null;
+    }
+
+    return (
+      <Section heading="shapes" className="shapes-section">
+        {(heading: React.ReactNode) => (
+          <div style={{ position: "relative" }}>
+            {renderWelcomeScreen && (
+              <tunnels.WelcomeScreenToolbarHintTunnel.Out />
+            )}
+            <Stack.Col gap={spacing.toolbarColGap} align="center">
+              <tunnels.ToolbarHeadingTunnel.Out />
+              <Stack.Row
+                gap={spacing.toolbarRowGap}
+                className={clsx("App-toolbar-container", {
+                  "zen-mode": appState.zenModeEnabled,
+                })}
+              >
+                <Island
+                  padding={spacing.islandPadding}
+                  className={clsx("App-toolbar", {
+                    "zen-mode": appState.zenModeEnabled,
+                    "App-toolbar--compact": isCompactStylesPanel,
+                  })}
+                >
+                  <HintViewer
+                    appState={appState}
+                    isMobile={editorInterface.formFactor === "phone"}
+                    editorInterface={editorInterface}
+                    app={app}
+                  />
+                  {heading}
+                  <Stack.Row gap={spacing.toolbarInnerRowGap}>
+                    <PenModeButton
+                      zenModeEnabled={appState.zenModeEnabled}
+                      checked={appState.penMode}
+                      onChange={() => onPenModeToggle(null)}
+                      title={t("toolBar.penMode")}
+                      penDetected={appState.penDetected}
+                    />
+                    <LockButton
+                      checked={appState.activeTool.locked}
+                      onChange={onLockToggle}
+                      title={t("toolBar.lock")}
+                    />
+
+                    <div className="App-toolbar__divider" />
+
+                    <ShapesSwitcher
+                      setAppState={setAppState}
+                      activeTool={appState.activeTool}
+                      UIOptions={UIOptions}
+                      app={app}
+                    />
+                  </Stack.Row>
+                </Island>
+                {isCollaborating && (
+                  <Island
+                    style={{
+                      marginLeft: spacing.collabMarginLeft,
+                      alignSelf: "center",
+                      height: "fit-content",
+                    }}
+                  >
+                    <LaserPointerButton
+                      title={t("toolBar.laser")}
+                      checked={appState.activeTool.type === TOOL_TYPE.laser}
+                      onChange={() =>
+                        app.setActiveTool({ type: TOOL_TYPE.laser })
+                      }
+                      isMobile
+                    />
+                  </Island>
+                )}
+              </Stack.Row>
+            </Stack.Col>
+          </div>
+        )}
+      </Section>
+    );
+  };
+
   const renderFixedSideContainer = () => {
     const shouldRenderSelectedShapeActions = showSelectedShapeActions(
       appState,
@@ -313,86 +400,6 @@ const LayerUI = ({
               {shouldRenderSelectedShapeActions && renderSelectedShapeActions()}
             </div>
           </Stack.Col>
-          {!appState.viewModeEnabled &&
-            appState.openDialog?.name !== "elementLinkSelector" && (
-              <Section heading="shapes" className="shapes-section">
-                {(heading: React.ReactNode) => (
-                  <div style={{ position: "relative" }}>
-                    {renderWelcomeScreen && (
-                      <tunnels.WelcomeScreenToolbarHintTunnel.Out />
-                    )}
-                    <Stack.Col gap={spacing.toolbarColGap} align="center">
-                      <tunnels.ToolbarHeadingTunnel.Out />
-                      <Stack.Row
-                        gap={spacing.toolbarRowGap}
-                        className={clsx("App-toolbar-container", {
-                          "zen-mode": appState.zenModeEnabled,
-                        })}
-                      >
-                        <Island
-                          padding={spacing.islandPadding}
-                          className={clsx("App-toolbar", {
-                            "zen-mode": appState.zenModeEnabled,
-                            "App-toolbar--compact": isCompactStylesPanel,
-                          })}
-                        >
-                          <HintViewer
-                            appState={appState}
-                            isMobile={editorInterface.formFactor === "phone"}
-                            editorInterface={editorInterface}
-                            app={app}
-                          />
-                          {heading}
-                          <Stack.Row gap={spacing.toolbarInnerRowGap}>
-                            <PenModeButton
-                              zenModeEnabled={appState.zenModeEnabled}
-                              checked={appState.penMode}
-                              onChange={() => onPenModeToggle(null)}
-                              title={t("toolBar.penMode")}
-                              penDetected={appState.penDetected}
-                            />
-                            <LockButton
-                              checked={appState.activeTool.locked}
-                              onChange={onLockToggle}
-                              title={t("toolBar.lock")}
-                            />
-
-                            <div className="App-toolbar__divider" />
-
-                            <ShapesSwitcher
-                              setAppState={setAppState}
-                              activeTool={appState.activeTool}
-                              UIOptions={UIOptions}
-                              app={app}
-                            />
-                          </Stack.Row>
-                        </Island>
-                        {isCollaborating && (
-                          <Island
-                            style={{
-                              marginLeft: spacing.collabMarginLeft,
-                              alignSelf: "center",
-                              height: "fit-content",
-                            }}
-                          >
-                            <LaserPointerButton
-                              title={t("toolBar.laser")}
-                              checked={
-                                appState.activeTool.type === TOOL_TYPE.laser
-                              }
-                              onChange={() =>
-                                app.setActiveTool({ type: TOOL_TYPE.laser })
-                              }
-                              isMobile
-                            />
-                          </Island>
-                        )}
-                      </Stack.Row>
-                    </Stack.Col>
-                  </div>
-                )}
-              </Section>
-            )}
           <div
             className={clsx(
               "layer-ui__wrapper__top-right zen-mode-transition",
@@ -452,6 +459,7 @@ const LayerUI = ({
   };
 
   const isSidebarDocked = useAtomValue(isSidebarDockedAtom);
+  const toolbarContent = renderToolbar();
 
   const layerUIJSX = (
     <>
@@ -601,37 +609,42 @@ const LayerUI = ({
           >
             {renderWelcomeScreen && <tunnels.WelcomeScreenCenterTunnel.Out />}
             {renderFixedSideContainer()}
+            {(toolbarContent || appState.toast || appState.scrolledOutside) && (
+              <div className="App-bottom-center">
+                {(appState.toast || appState.scrolledOutside) && (
+                  <div className="floating-status-stack">
+                    {appState.toast && (
+                      <Toast
+                        message={appState.toast.message}
+                        onClose={() => setAppState({ toast: null })}
+                        duration={appState.toast.duration}
+                        closable={appState.toast.closable}
+                      />
+                    )}
+                    {!appState.toast && appState.scrolledOutside && (
+                      <button
+                        type="button"
+                        className="scroll-back-to-content"
+                        onClick={() => {
+                          setAppState((appState) => ({
+                            ...calculateScrollCenter(elements, appState),
+                          }));
+                        }}
+                      >
+                        {t("buttons.scrollBackToContent")}
+                      </button>
+                    )}
+                  </div>
+                )}
+                {toolbarContent}
+              </div>
+            )}
             <Footer
               appState={appState}
               actionManager={actionManager}
               showExitZenModeBtn={showExitZenModeBtn}
               renderWelcomeScreen={renderWelcomeScreen}
             />
-            {(appState.toast || appState.scrolledOutside) && (
-              <div className="floating-status-stack">
-                {appState.toast && (
-                  <Toast
-                    message={appState.toast.message}
-                    onClose={() => setAppState({ toast: null })}
-                    duration={appState.toast.duration}
-                    closable={appState.toast.closable}
-                  />
-                )}
-                {!appState.toast && appState.scrolledOutside && (
-                  <button
-                    type="button"
-                    className="scroll-back-to-content"
-                    onClick={() => {
-                      setAppState((appState) => ({
-                        ...calculateScrollCenter(elements, appState),
-                      }));
-                    }}
-                  >
-                    {t("buttons.scrollBackToContent")}
-                  </button>
-                )}
-              </div>
-            )}
           </div>
           {renderSidebars()}
         </>

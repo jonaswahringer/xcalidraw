@@ -4860,10 +4860,18 @@ class App extends React.Component<AppProps, AppState> {
   );
 
   public getEditorUIOffsets = (): Offsets => {
-    const toolbarBottom =
+    const topBarBottom =
+      this.excalidrawContainerRef?.current
+        ?.querySelector(".App-menu_top")
+        ?.getBoundingClientRect()?.bottom ?? 0;
+    const bottomCenterTop =
+      this.excalidrawContainerRef?.current
+        ?.querySelector(".App-bottom-center")
+        ?.getBoundingClientRect()?.top ??
       this.excalidrawContainerRef?.current
         ?.querySelector(".App-toolbar")
-        ?.getBoundingClientRect()?.bottom ?? 0;
+        ?.getBoundingClientRect()?.top ??
+      this.state.height;
     const sidebarRect = this.excalidrawContainerRef?.current
       ?.querySelector(".sidebar")
       ?.getBoundingClientRect();
@@ -4875,25 +4883,25 @@ class App extends React.Component<AppProps, AppState> {
 
     return getLanguage().rtl
       ? {
-          top: toolbarBottom + PADDING,
+          top: topBarBottom + PADDING,
           right:
             Math.max(
               this.state.width -
                 (propertiesPanelRect?.left ?? this.state.width),
               0,
             ) + PADDING,
-          bottom: PADDING,
+          bottom: this.state.height - bottomCenterTop + PADDING,
           left: Math.max(sidebarRect?.right ?? 0, 0) + PADDING,
         }
       : {
-          top: toolbarBottom + PADDING,
+          top: topBarBottom + PADDING,
           right: Math.max(
             this.state.width -
               (sidebarRect?.left ?? this.state.width) +
               PADDING,
             0,
           ),
-          bottom: PADDING,
+          bottom: this.state.height - bottomCenterTop + PADDING,
           left: Math.max(propertiesPanelRect?.right ?? 0, 0) + PADDING,
         };
   };
