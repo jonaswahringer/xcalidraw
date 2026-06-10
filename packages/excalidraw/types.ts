@@ -13,6 +13,7 @@ import type { MaybeTransformHandleType } from "@excalidraw/element";
 import type {
   Arrowhead,
   BindMode,
+  DoubleArrowheadPlacement,
   ExcalidrawBindableElement,
   ExcalidrawElement,
   ExcalidrawElementType,
@@ -374,6 +375,7 @@ export interface AppState {
   currentHoveredFontFamily: FontFamilyValues | null;
   currentItemRoundness: StrokeRoundness;
   currentItemArrowType: "sharp" | "round" | "elbow" | "double";
+  currentItemDoubleArrowheadPlacement: DoubleArrowheadPlacement;
   viewBackgroundColor: string;
   scrollX: number;
   scrollY: number;

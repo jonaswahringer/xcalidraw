@@ -352,10 +352,23 @@ export type FixedSegment = {
   index: Index;
 };
 
+/**
+ * How arrowheads are placed on double-line arrows:
+ * - "single": one arrowhead on one of the two lines
+ * - "perLine": one arrowhead on each of the two lines
+ * - "whole": one big arrowhead capping the whole double-line
+ */
+export type DoubleArrowheadPlacement = "single" | "perLine" | "whole";
+
 export type ExcalidrawArrowElement = ExcalidrawLinearElement &
   Readonly<{
     type: "arrow";
     elbowed: boolean;
+    /**
+     * Only relevant when strokeStyle is "double".
+     * undefined defaults to "whole".
+     */
+    doubleArrowheadPlacement?: DoubleArrowheadPlacement;
   }>;
 
 export type ExcalidrawElbowArrowElement = Merge<

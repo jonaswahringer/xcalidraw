@@ -38,6 +38,7 @@ export const getDefaultAppState = (): Omit<
     currentItemStrokeColor: DEFAULT_ELEMENT_PROPS.strokeColor,
     currentItemRoundness: isTestEnv() ? "sharp" : "round",
     currentItemArrowType: ARROW_TYPE.round,
+    currentItemDoubleArrowheadPlacement: "whole",
     currentItemStrokeStyle: DEFAULT_ELEMENT_PROPS.strokeStyle,
     currentItemStrokeWidth: DEFAULT_ELEMENT_PROPS.strokeWidth,
     currentItemTextAlign: DEFAULT_TEXT_ALIGN,
@@ -161,6 +162,11 @@ const APP_STATE_STORAGE_CONF = (<
     server: false,
   },
   currentItemArrowType: {
+    browser: true,
+    export: false,
+    server: false,
+  },
+  currentItemDoubleArrowheadPlacement: {
     browser: true,
     export: false,
     server: false,

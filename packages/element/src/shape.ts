@@ -47,6 +47,7 @@ import { elementWithCanvasCache } from "./renderElement";
 import { headingForPointIsHorizontal } from "./heading";
 import {
   canBecomePolygon,
+  getDoubleArrowheadPlacement,
   isDoubleArrow,
   isElbowArrow,
   isEmbeddableElement,
@@ -69,6 +70,7 @@ import { canChangeRoundness } from "./comparisons";
 import type {
   Arrowhead,
   ElementsMap,
+  ExcalidrawArrowElement,
   ExcalidrawElement,
   ExcalidrawFreeDrawElement,
   ExcalidrawLineElement,
@@ -918,59 +920,19 @@ const _generateElementShape = (
             generator.polygon(points as unknown as RoughPoint[], options),
           ];
         } else if (isDoubleArrow(element) && points.length >= 2) {
-          // double-line arrow: invisible centerline first (keeps arrowhead
-          // placement & hit detection on the center), then two parallel lines
-          // trimmed back so they don't bleed into the arrowheads
-          const halfGap = element.strokeWidth + 1;
-          const doublePoints = trimPointsForDoubleArrowheads(element, points);
-          shape = [
-            generator.linearPath(points as unknown as RoughPoint[], {
-              ...options,
-              stroke: "none",
-            }),
-            generator.linearPath(
-              offsetPolylinePoints(
-                doublePoints,
-                halfGap,
-              ) as unknown as RoughPoint[],
-              options,
-            ),
-            generator.linearPath(
-              offsetPolylinePoints(
-                doublePoints,
-                -halfGap,
-              ) as unknown as RoughPoint[],
-              options,
-            ),
-          ];
+          shape = generateDoubleArrowShapes(
+            element,
+            points,
+            generator,
+            options,
+          );
         } else {
           shape = [
             generator.linearPath(points as unknown as RoughPoint[], options),
           ];
         }
       } else if (isDoubleArrow(element) && points.length >= 2) {
-        const halfGap = element.strokeWidth + 1;
-        const doublePoints = trimPointsForDoubleArrowheads(element, points);
-        shape = [
-          generator.curve(points as unknown as RoughPoint[], {
-            ...options,
-            stroke: "none",
-          }),
-          generator.curve(
-            offsetPolylinePoints(
-              doublePoints,
-              halfGap,
-            ) as unknown as RoughPoint[],
-            options,
-          ),
-          generator.curve(
-            offsetPolylinePoints(
-              doublePoints,
-              -halfGap,
-            ) as unknown as RoughPoint[],
-            options,
-          ),
-        ];
+        shape = generateDoubleArrowShapes(element, points, generator, options);
       } else {
         shape = [generator.curve(points as unknown as RoughPoint[], options)];
       }
@@ -979,36 +941,53 @@ const _generateElementShape = (
       if (element.type === "arrow") {
         const { startArrowhead = null, endArrowhead = "arrow" } = element;
 
-        if (startArrowhead !== null) {
-          const shapes = getArrowheadShapes(
+        // for double arrows with "single"/"perLine" arrowhead placement,
+        // heads are computed from guide paths along the rails instead of
+        // the (default) centerline
+        const headSources: Drawable[][] = (!isElbowArrow(element) &&
+          isDoubleArrow(element) &&
+          points.length >= 2 &&
+          generateDoubleArrowheadGuides(
             element,
-            shape,
-            "start",
-            startArrowhead,
+            points,
             generator,
             options,
-            canvasBackgroundColor,
-            isDarkMode,
-          );
-          shape.push(...shapes);
-        }
+          )) || [shape];
 
-        if (endArrowhead !== null) {
-          if (endArrowhead === undefined) {
-            // Hey, we have an old arrow here!
+        for (const headSource of headSources) {
+          if (startArrowhead !== null) {
+            shape.push(
+              ...getArrowheadShapes(
+                element,
+                headSource,
+                "start",
+                startArrowhead,
+                generator,
+                options,
+                canvasBackgroundColor,
+                isDarkMode,
+              ),
+            );
           }
 
-          const shapes = getArrowheadShapes(
-            element,
-            shape,
-            "end",
-            endArrowhead,
-            generator,
-            options,
-            canvasBackgroundColor,
-            isDarkMode,
-          );
-          shape.push(...shapes);
+          if (endArrowhead !== null) {
+            if (endArrowhead === undefined) {
+              // Hey, we have an old arrow here!
+            }
+
+            shape.push(
+              ...getArrowheadShapes(
+                element,
+                headSource,
+                "end",
+                endArrowhead,
+                generator,
+                options,
+                canvasBackgroundColor,
+                isDarkMode,
+              ),
+            );
+          }
         }
       }
       return shape;
@@ -1127,10 +1106,10 @@ const generateElbowArrowShape = (
  * arrowheads. Mirrors the sizing logic in `getArrowheadPoints`.
  */
 const trimPointsForDoubleArrowheads = (
-  element: ExcalidrawLinearElement,
+  element: ExcalidrawArrowElement,
   points: readonly LocalPoint[],
 ): LocalPoint[] => {
-  if (element.type !== "arrow" || points.length < 2) {
+  if (points.length < 2) {
     return points.slice();
   }
 
@@ -1140,8 +1119,12 @@ const trimPointsForDoubleArrowheads = (
   const trimLength = (arrowhead: Arrowhead, segmentLength: number) => {
     const lengthMultiplier =
       arrowhead === "diamond" || arrowhead === "diamond_outline" ? 0.25 : 0.5;
-    // matches the size bump for double-line arrows in `getArrowheadPoints`
-    const size = getArrowheadSize(arrowhead) + element.strokeWidth * 2;
+    // matches the placement-dependent size bump in `getArrowheadPoints`
+    const size =
+      getArrowheadSize(arrowhead) +
+      (getDoubleArrowheadPlacement(element) === "whole"
+        ? element.strokeWidth * 2
+        : 0);
     const headLength = Math.min(size, segmentLength * lengthMultiplier);
 
     // how far the head visually extends back from the tip along the line
@@ -1234,6 +1217,93 @@ const offsetPolylinePoints = (
 
     return pointFrom<LocalPoint>(p[0] + nx * offset, p[1] + ny * offset);
   });
+};
+
+const generateDoubleArrowPath = (
+  element: ExcalidrawArrowElement,
+  points: readonly LocalPoint[],
+  generator: RoughGenerator,
+  options: Options,
+) =>
+  element.roundness
+    ? generator.curve(points as unknown as RoughPoint[], options)
+    : generator.linearPath(points as unknown as RoughPoint[], options);
+
+/**
+ * Generates the shapes of a double-line arrow: an invisible centerline
+ * (keeps hit detection and "whole" arrowhead placement on the center)
+ * followed by the two visible parallel lines ("rails").
+ *
+ * Rails that end in an arrowhead are trimmed back so they don't bleed
+ * into the head.
+ */
+const generateDoubleArrowShapes = (
+  element: ExcalidrawArrowElement,
+  points: readonly LocalPoint[],
+  generator: RoughGenerator,
+  options: Options,
+): Drawable[] => {
+  const halfGap = element.strokeWidth + 1;
+  const placement = getDoubleArrowheadPlacement(element);
+
+  const shapes: Drawable[] = [
+    generateDoubleArrowPath(element, points, generator, {
+      ...options,
+      stroke: "none",
+    }),
+  ];
+
+  const trimmedPoints = trimPointsForDoubleArrowheads(element, points);
+
+  for (const sign of [1, -1] as const) {
+    // with "single" placement only the first rail carries the arrowheads;
+    // the other rail runs the full length
+    const railHasArrowheads = placement !== "single" || sign === 1;
+    shapes.push(
+      generateDoubleArrowPath(
+        element,
+        offsetPolylinePoints(
+          railHasArrowheads ? trimmedPoints : points,
+          sign * halfGap,
+        ),
+        generator,
+        options,
+      ),
+    );
+  }
+
+  return shapes;
+};
+
+/**
+ * For double-line arrows with "single" or "perLine" arrowhead placement,
+ * the heads are computed from invisible guide paths running along the
+ * rails (at full, untrimmed length) instead of the centerline.
+ *
+ * Returns `null` for "whole" placement (centerline-based default).
+ */
+const generateDoubleArrowheadGuides = (
+  element: ExcalidrawArrowElement,
+  points: readonly LocalPoint[],
+  generator: RoughGenerator,
+  options: Options,
+): Drawable[][] | null => {
+  const placement = getDoubleArrowheadPlacement(element);
+  if (placement === "whole") {
+    return null;
+  }
+
+  const halfGap = element.strokeWidth + 1;
+  const signs = placement === "perLine" ? ([1, -1] as const) : ([1] as const);
+
+  return signs.map((sign) => [
+    generateDoubleArrowPath(
+      element,
+      offsetPolylinePoints(points, sign * halfGap),
+      generator,
+      { ...options, stroke: "none" },
+    ),
+  ]);
 };
 
 /**

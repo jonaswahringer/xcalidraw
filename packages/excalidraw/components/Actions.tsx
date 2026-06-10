@@ -239,7 +239,10 @@ export const SelectedShapeActions = ({
         renderAction("changeVerticalAlign")}
       {(canHaveArrowheads(appState.activeTool.type) ||
         targetElements.some((element) => canHaveArrowheads(element.type))) && (
-        <>{renderAction("changeArrowhead")}</>
+        <>
+          {renderAction("changeArrowhead")}
+          {renderAction("changeDoubleArrowheadPlacement")}
+        </>
       )}
 
       {renderAction("changeOpacity")}

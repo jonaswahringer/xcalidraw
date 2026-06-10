@@ -34,8 +34,10 @@ import { LinearElementEditor } from "./linearElementEditor";
 import { generateRoughOptions, getElementShape, ShapeCache } from "./shape";
 import { getBoundTextElement, getContainerElement } from "./textElement";
 import {
+  getDoubleArrowheadPlacement,
   isArrowElement,
   isBoundToContainer,
+  isDoubleArrow,
   isExcalidrawElement,
   isFrameLikeElement,
   isFreeDrawElement,
@@ -807,11 +809,13 @@ export const getArrowheadPoints = (
   const nx = (x2 - x1) / distance;
   const ny = (y2 - y1) / distance;
 
-  // double-line arrows render two parallel lines around the centerline, so
-  // enlarge the head a bit to make sure it visually caps both lines
+  // double-line arrows with "whole" arrowhead placement render one big head
+  // capping both parallel lines, so enlarge the head a bit
   const size =
     getArrowheadSize(arrowhead) +
-    (element.strokeStyle === "double" ? element.strokeWidth * 2 : 0);
+    (isDoubleArrow(element) && getDoubleArrowheadPlacement(element) === "whole"
+      ? element.strokeWidth * 2
+      : 0);
 
   let length = 0;
 

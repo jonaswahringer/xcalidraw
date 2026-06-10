@@ -43,8 +43,10 @@ import {
 } from "@excalidraw/element";
 
 import {
+  getDoubleArrowheadPlacement,
   isArrowElement,
   isBoundToContainer,
+  isDoubleArrow,
   isElbowArrow,
   isLinearElement,
   isLineElement,
@@ -66,6 +68,7 @@ import type { LocalPoint, Radians } from "@excalidraw/math";
 
 import type {
   Arrowhead,
+  DoubleArrowheadPlacement,
   ElementsMap,
   ExcalidrawBindableElement,
   ExcalidrawElement,
@@ -103,6 +106,9 @@ import {
   ArrowheadTriangleIcon,
   ArrowheadTriangleOutlineIcon,
   doubleArrowIcon,
+  doubleArrowheadPerLineIcon,
+  doubleArrowheadSingleIcon,
+  doubleArrowheadWholeIcon,
   EdgeRoundIcon,
   EdgeSharpIcon,
   elbowArrowIcon,
@@ -1793,6 +1799,7 @@ export const actionChangeArrowProperties = register({
     return (
       <div className="selected-shape-actions">
         {renderAction("changeArrowhead")}
+        {renderAction("changeDoubleArrowheadPlacement")}
         {renderAction("changeArrowType")}
       </div>
     );
@@ -2055,3 +2062,79 @@ export const actionChangeArrowType = register<keyof typeof ARROW_TYPE>({
     );
   },
 });
+
+export const actionChangeDoubleArrowheadPlacement =
+  register<DoubleArrowheadPlacement>({
+    name: "changeDoubleArrowheadPlacement",
+    label: "Change double arrow arrowhead placement",
+    trackEvent: false,
+    perform: (elements, appState, value) => {
+      return {
+        elements: changeProperty(elements, appState, (el) => {
+          if (isDoubleArrow(el)) {
+            return newElementWith(el, { doubleArrowheadPlacement: value });
+          }
+          return el;
+        }),
+        appState: {
+          ...appState,
+          currentItemDoubleArrowheadPlacement: value,
+        },
+        captureUpdate: CaptureUpdateAction.IMMEDIATELY,
+      };
+    },
+    PanelComponent: ({ elements, appState, updateData, app }) => {
+      const placement = getFormValue<DoubleArrowheadPlacement | null>(
+        elements,
+        app,
+        (element) =>
+          isDoubleArrow(element) ? getDoubleArrowheadPlacement(element) : null,
+        (element) => isDoubleArrow(element),
+        (hasSelection) =>
+          hasSelection
+            ? null
+            : appState.currentItemArrowType === ARROW_TYPE.double
+            ? appState.currentItemDoubleArrowheadPlacement
+            : null,
+      );
+
+      // only show the picker when a double arrow is selected (or the
+      // double arrow tool is active)
+      if (!placement) {
+        return null;
+      }
+
+      return (
+        <fieldset>
+          <legend>{t("labels.doubleArrowheadPlacement")}</legend>
+          <div className="buttonList">
+            <RadioSelection
+              group="doubleArrowheadPlacement"
+              options={[
+                {
+                  value: "single" as const,
+                  text: t("labels.doubleArrowheadPlacement_single"),
+                  icon: doubleArrowheadSingleIcon,
+                  testId: "double-arrowhead-single",
+                },
+                {
+                  value: "perLine" as const,
+                  text: t("labels.doubleArrowheadPlacement_perLine"),
+                  icon: doubleArrowheadPerLineIcon,
+                  testId: "double-arrowhead-per-line",
+                },
+                {
+                  value: "whole" as const,
+                  text: t("labels.doubleArrowheadPlacement_whole"),
+                  icon: doubleArrowheadWholeIcon,
+                  testId: "double-arrowhead-whole",
+                },
+              ]}
+              value={placement}
+              onChange={(value) => updateData(value)}
+            />
+          </div>
+        </fieldset>
+      );
+    },
+  });

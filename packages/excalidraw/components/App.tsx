@@ -2966,9 +2966,7 @@ class App extends React.Component<AppProps, AppState> {
   public createPage = withBatchedUpdates((name?: string): string => {
     this.snapshotActivePage();
 
-    const newPage = createEmptyPage(
-      name ?? `Page ${this.pages.length + 1}`,
-    );
+    const newPage = createEmptyPage(name ?? `Page ${this.pages.length + 1}`);
     this.pages.push(newPage);
     this.activePageId = newPage.id;
     this.loadPage(newPage);
@@ -3016,8 +3014,7 @@ class App extends React.Component<AppProps, AppState> {
     this.pages.splice(pageIndex, 1);
 
     if (wasActive) {
-      const nextPage =
-        this.pages[Math.min(pageIndex, this.pages.length - 1)];
+      const nextPage = this.pages[Math.min(pageIndex, this.pages.length - 1)];
       this.activePageId = nextPage.id;
       this.loadPage(nextPage);
     }
@@ -9516,6 +9513,10 @@ class App extends React.Component<AppProps, AppState> {
                 this.state.currentItemArrowType === ARROW_TYPE.double
                   ? "double"
                   : this.state.currentItemStrokeStyle,
+              doubleArrowheadPlacement:
+                this.state.currentItemArrowType === ARROW_TYPE.double
+                  ? this.state.currentItemDoubleArrowheadPlacement
+                  : undefined,
               roughness: this.state.currentItemRoughness,
               opacity: this.state.currentItemOpacity,
               roundness:

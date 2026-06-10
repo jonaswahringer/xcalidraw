@@ -2339,6 +2339,40 @@ export const doubleArrowIcon = createIcon(
   tablerIconProps,
 );
 
+// double-line arrow: one arrowhead on one of the two lines
+export const doubleArrowheadSingleIcon = createIcon(
+  <g>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M3 9h14" />
+    <path d="M13 5l4 4l-4 4" />
+    <path d="M3 15h18" />
+  </g>,
+  tablerIconProps,
+);
+
+// double-line arrow: one arrowhead per line
+export const doubleArrowheadPerLineIcon = createIcon(
+  <g>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M3 8h14" />
+    <path d="M13 4l4 4l-4 4" />
+    <path d="M3 16h14" />
+    <path d="M13 12l4 4l-4 4" />
+  </g>,
+  tablerIconProps,
+);
+
+// double-line arrow: one big arrowhead capping the whole double-line
+export const doubleArrowheadWholeIcon = createIcon(
+  <g>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M3 9h11" />
+    <path d="M3 15h11" />
+    <path d="M14 5l7 7l-7 7" />
+  </g>,
+  tablerIconProps,
+);
+
 // arrow-ramp-right-2 (heavily modified)
 export const roundArrowIcon = createIcon(
   <g>

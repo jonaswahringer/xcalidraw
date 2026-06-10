@@ -19,6 +19,7 @@ export {
   actionChangeTextAlign,
   actionChangeVerticalAlign,
   actionChangeArrowProperties,
+  actionChangeDoubleArrowheadPlacement,
 } from "./actionProperties";
 
 export {

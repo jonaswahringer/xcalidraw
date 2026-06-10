@@ -577,6 +577,8 @@ export const restoreElement = (
         x: x ?? 0,
         y: y ?? 0,
         elbowed: (element as ExcalidrawArrowElement).elbowed,
+        doubleArrowheadPlacement: (element as ExcalidrawArrowElement)
+          .doubleArrowheadPlacement,
         ...getSizeFromPoints(points),
       };
 

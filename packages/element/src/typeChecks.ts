@@ -7,6 +7,7 @@ import type { ElementOrToolType } from "@excalidraw/excalidraw/types";
 import type { MarkNonNullable } from "@excalidraw/common/utility-types";
 
 import type {
+  DoubleArrowheadPlacement,
   ExcalidrawArrowElement,
   ExcalidrawBindableElement,
   ExcalidrawElbowArrowElement,
@@ -154,6 +155,10 @@ export const isDoubleArrow = (
 ): element is ExcalidrawArrowElement => {
   return isArrowElement(element) && element.strokeStyle === "double";
 };
+
+export const getDoubleArrowheadPlacement = (
+  element: ExcalidrawArrowElement,
+): DoubleArrowheadPlacement => element.doubleArrowheadPlacement ?? "whole";
 
 export const isLinearElementType = (
   elementType: ElementOrToolType,
