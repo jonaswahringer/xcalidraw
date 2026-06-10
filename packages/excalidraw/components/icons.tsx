@@ -2327,6 +2327,18 @@ export const elbowArrowIcon = createIcon(
   tablerIconProps,
 );
 
+// double-arrow (new)
+export const doubleArrowIcon = createIcon(
+  <g>
+    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+    <path d="M3 14l11 -11" />
+    <path d="M10 3h4v4" />
+    <path d="M10 17v4h4" />
+    <path d="M21 10l-11 11" />
+  </g>,
+  tablerIconProps,
+);
+
 // arrow-ramp-right-2 (heavily modified)
 export const roundArrowIcon = createIcon(
   <g>

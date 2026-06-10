@@ -54,6 +54,7 @@
     "arrowtype_sharp": "尖銳箭頭",
     "arrowtype_round": "彎角箭頭",
     "arrowtype_elbowed": "直角箭頭",
+    "arrowtype_double": "雙箭頭",
     "fontSize": "字型大小",
     "fontFamily": "字型系列",
     "addWatermark": "加上「以 Excalidraw 製作」浮水印",

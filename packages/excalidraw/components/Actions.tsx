@@ -77,6 +77,7 @@ import {
   sharpArrowIcon,
   roundArrowIcon,
   elbowArrowIcon,
+  doubleArrowIcon,
   TextSizeIcon,
   adjustmentsIcon,
   DotsHorizontalIcon,
@@ -478,6 +479,8 @@ const CombinedArrowProperties = ({
                   if (isArrowElement(element)) {
                     return element.elbowed
                       ? "elbow"
+                      : element.strokeStyle === "double"
+                      ? "double"
                       : element.roundness
                       ? "round"
                       : "sharp";
@@ -491,6 +494,9 @@ const CombinedArrowProperties = ({
 
               if (arrowType === "elbow") {
                 return elbowArrowIcon;
+              }
+              if (arrowType === "double") {
+                return doubleArrowIcon;
               }
               if (arrowType === "round") {
                 return roundArrowIcon;

@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Fletxa Esmolada",
     "arrowtype_round": "Fletxa corba",
     "arrowtype_elbowed": "Fletxa de colzes",
+    "arrowtype_double": "Fletxa doble",
     "fontSize": "Mida de lletra",
     "fontFamily": "Tipus de lletra",
     "addWatermark": "Afegeix-hi «Fet amb Excalidraw»",

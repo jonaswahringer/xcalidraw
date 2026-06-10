@@ -54,6 +54,7 @@
     "arrowtype_sharp": "直箭头",
     "arrowtype_round": "曲线箭头",
     "arrowtype_elbowed": "拐角箭头",
+    "arrowtype_double": "双箭头",
     "fontSize": "字体大小",
     "fontFamily": "字体",
     "addWatermark": "添加 “使用 Excalidraw 创建” 水印",

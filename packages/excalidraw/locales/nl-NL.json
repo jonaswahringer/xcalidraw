@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Scherpe pijl",
     "arrowtype_round": "Gebogen pijl",
     "arrowtype_elbowed": "Hoek pijl",
+    "arrowtype_double": "Dubbele pijl",
     "fontSize": "Tekstgrootte",
     "fontFamily": "Lettertype",
     "addWatermark": "Voeg \"Gemaakt met Excalidraw\" toe",

@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Острая стрелка",
     "arrowtype_round": "Изогнутая стрелка",
     "arrowtype_elbowed": "Прямоугольная стрелка",
+    "arrowtype_double": "Двойная стрелка",
     "fontSize": "Размер шрифта",
     "fontFamily": "Семейство шрифтов",
     "addWatermark": "Добавить «Создано в Excalidraw»",

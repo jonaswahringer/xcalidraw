@@ -54,6 +54,7 @@
     "arrowtype_sharp": "",
     "arrowtype_round": "",
     "arrowtype_elbowed": "",
+    "arrowtype_double": "Kaksoisnuoli",
     "fontSize": "Kirjasinkoko",
     "fontFamily": "Kirjasintyyppi",
     "addWatermark": "Lisää \"Tehty Excalidrawilla\"",

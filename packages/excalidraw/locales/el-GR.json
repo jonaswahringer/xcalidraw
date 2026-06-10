@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Αιχμηρό βέλος",
     "arrowtype_round": "Κυρτό βέλος",
     "arrowtype_elbowed": "Γωνιακό βέλος",
+    "arrowtype_double": "Διπλό βέλος",
     "fontSize": "Μέγεθος γραμματοσειράς",
     "fontFamily": "Γραμματοσειρά",
     "addWatermark": "Προσθήκη \"Φτιαγμένο με Excalidraw\"",

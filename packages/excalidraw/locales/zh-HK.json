@@ -54,6 +54,7 @@
     "arrowtype_sharp": "",
     "arrowtype_round": "",
     "arrowtype_elbowed": "",
+    "arrowtype_double": "",
     "fontSize": "字型大小",
     "fontFamily": "字體",
     "addWatermark": "加入「使用 Excalidraw 製圖」水印",

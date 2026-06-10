@@ -7,28 +7,28 @@ import type { ElementOrToolType } from "@excalidraw/excalidraw/types";
 import type { MarkNonNullable } from "@excalidraw/common/utility-types";
 
 import type {
-  ExcalidrawElement,
-  ExcalidrawTextElement,
-  ExcalidrawEmbeddableElement,
-  ExcalidrawLinearElement,
+  ExcalidrawArrowElement,
   ExcalidrawBindableElement,
-  ExcalidrawFreeDrawElement,
-  InitializedExcalidrawImageElement,
-  ExcalidrawImageElement,
-  ExcalidrawTextElementWithContainer,
-  ExcalidrawTextContainer,
-  ExcalidrawFrameElement,
-  RoundnessType,
-  ExcalidrawFrameLikeElement,
+  ExcalidrawElbowArrowElement,
+  ExcalidrawElement,
   ExcalidrawElementType,
+  ExcalidrawEmbeddableElement,
+  ExcalidrawFlowchartNodeElement,
+  ExcalidrawFrameElement,
+  ExcalidrawFrameLikeElement,
+  ExcalidrawFreeDrawElement,
   ExcalidrawIframeElement,
   ExcalidrawIframeLikeElement,
-  ExcalidrawMagicFrameElement,
-  ExcalidrawArrowElement,
-  ExcalidrawElbowArrowElement,
+  ExcalidrawImageElement,
   ExcalidrawLineElement,
-  ExcalidrawFlowchartNodeElement,
+  ExcalidrawLinearElement,
   ExcalidrawLinearElementSubType,
+  ExcalidrawMagicFrameElement,
+  ExcalidrawTextContainer,
+  ExcalidrawTextElement,
+  ExcalidrawTextElementWithContainer,
+  InitializedExcalidrawImageElement,
+  RoundnessType,
 } from "./types";
 
 export const isInitializedImageElement = (
@@ -147,6 +147,12 @@ export const isCurvedArrow = (
   return (
     isArrowElement(element) && !element.elbowed && element.roundness !== null
   );
+};
+
+export const isDoubleArrow = (
+  element?: ExcalidrawElement,
+): element is ExcalidrawArrowElement => {
+  return isArrowElement(element) && element.strokeStyle === "double";
 };
 
 export const isLinearElementType = (
@@ -366,6 +372,9 @@ export const getLinearElementSubType = (
   }
   if (isElbowArrow(element)) {
     return "elbowArrow";
+  }
+  if (isDoubleArrow(element)) {
+    return "doubleArrow";
   }
   return "line";
 };

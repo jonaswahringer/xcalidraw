@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Ostra strzałka",
     "arrowtype_round": "Zaokrąglona strzałka",
     "arrowtype_elbowed": "Łamana strzałka",
+    "arrowtype_double": "Podwójna strzałka",
     "fontSize": "Rozmiar tekstu",
     "fontFamily": "Krój pisma",
     "addWatermark": "Dodaj \"Zrobione w Excalidraw\"",

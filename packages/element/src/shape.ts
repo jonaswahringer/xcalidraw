@@ -1,5 +1,5 @@
-import { simplify } from "points-on-curve";
 import { getStroke } from "perfect-freehand";
+import { simplify } from "points-on-curve";
 
 import {
   type GeometricShape,
@@ -11,20 +11,20 @@ import {
 } from "@excalidraw/utils/shape";
 
 import {
-  pointFrom,
-  pointDistance,
-  type LocalPoint,
-  pointRotateRads,
-} from "@excalidraw/math";
-import {
-  ROUGHNESS,
-  THEME,
-  isTransparent,
-  assertNever,
   COLOR_PALETTE,
   LINE_POLYGON_POINT_MERGE_DISTANCE,
+  ROUGHNESS,
+  THEME,
   applyDarkModeFilter,
+  assertNever,
+  isTransparent,
 } from "@excalidraw/common";
+import {
+  type LocalPoint,
+  pointDistance,
+  pointFrom,
+  pointRotateRads,
+} from "@excalidraw/math";
 
 import { RoughGenerator } from "roughjs/bin/generator";
 
@@ -33,19 +33,21 @@ import type { GlobalPoint } from "@excalidraw/math";
 import type { Mutable } from "@excalidraw/common/utility-types";
 
 import type {
-  AppState,
-  EmbedsValidationStatus,
-} from "@excalidraw/excalidraw/types";
-import type {
   ElementShape,
   ElementShapes,
   SVGPathString,
 } from "@excalidraw/excalidraw/scene/types";
+import type {
+  AppState,
+  EmbedsValidationStatus,
+} from "@excalidraw/excalidraw/types";
 
 import { elementWithCanvasCache } from "./renderElement";
 
+import { headingForPointIsHorizontal } from "./heading";
 import {
   canBecomePolygon,
+  isDoubleArrow,
   isElbowArrow,
   isEmbeddableElement,
   isIframeElement,
@@ -53,26 +55,26 @@ import {
   isLinearElement,
 } from "./typeChecks";
 import { getCornerRadius, isPathALoop } from "./utils";
-import { headingForPointIsHorizontal } from "./heading";
 
-import { canChangeRoundness } from "./comparisons";
 import {
   elementCenterPoint,
   getArrowheadPoints,
+  getArrowheadSize,
   getDiamondPoints,
   getElementAbsoluteCoords,
 } from "./bounds";
 import { shouldTestInside } from "./collision";
+import { canChangeRoundness } from "./comparisons";
 
 import type {
-  ExcalidrawElement,
-  NonDeletedExcalidrawElement,
-  ExcalidrawSelectionElement,
-  ExcalidrawLinearElement,
-  ExcalidrawFreeDrawElement,
-  ElementsMap,
-  ExcalidrawLineElement,
   Arrowhead,
+  ElementsMap,
+  ExcalidrawElement,
+  ExcalidrawFreeDrawElement,
+  ExcalidrawLineElement,
+  ExcalidrawLinearElement,
+  ExcalidrawSelectionElement,
+  NonDeletedExcalidrawElement,
 } from "./types";
 
 import type { Drawable, Options } from "roughjs/bin/core";
@@ -359,6 +361,8 @@ const generateArrowheadOutlineCircle = (
     fillStyle: "solid" as const,
     stroke: strokeColor,
     roughness: Math.min(0.5, options.roughness || 0),
+    // see triangle arrowhead in `getArrowheadShapes`
+    disableMultiStroke: false,
   };
 
   delete circleOptions.strokeLineDash;
@@ -419,6 +423,10 @@ const getArrowheadShapes = (
           arrowhead === "triangle_outline" ? backgroundFillColor : strokeColor,
         fillStyle: "solid" as const,
         roughness: Math.min(1, options.roughness || 0),
+        // arrowheads are always drawn with a solid stroke, so restore
+        // multi-stroke (disabled for dashed/dotted/double lines) — a single
+        // wobbly outline pass leaves visible gaps against the solid fill
+        disableMultiStroke: false,
       };
 
       // always use solid stroke for arrowhead
@@ -456,6 +464,8 @@ const getArrowheadShapes = (
           arrowhead === "diamond_outline" ? backgroundFillColor : strokeColor,
         fillStyle: "solid" as const,
         roughness: Math.min(1, options.roughness || 0),
+        // see triangle arrowhead above
+        disableMultiStroke: false,
       };
 
       // always use solid stroke for arrowhead
@@ -907,11 +917,60 @@ const _generateElementShape = (
           shape = [
             generator.polygon(points as unknown as RoughPoint[], options),
           ];
+        } else if (isDoubleArrow(element) && points.length >= 2) {
+          // double-line arrow: invisible centerline first (keeps arrowhead
+          // placement & hit detection on the center), then two parallel lines
+          // trimmed back so they don't bleed into the arrowheads
+          const halfGap = element.strokeWidth + 1;
+          const doublePoints = trimPointsForDoubleArrowheads(element, points);
+          shape = [
+            generator.linearPath(points as unknown as RoughPoint[], {
+              ...options,
+              stroke: "none",
+            }),
+            generator.linearPath(
+              offsetPolylinePoints(
+                doublePoints,
+                halfGap,
+              ) as unknown as RoughPoint[],
+              options,
+            ),
+            generator.linearPath(
+              offsetPolylinePoints(
+                doublePoints,
+                -halfGap,
+              ) as unknown as RoughPoint[],
+              options,
+            ),
+          ];
         } else {
           shape = [
             generator.linearPath(points as unknown as RoughPoint[], options),
           ];
         }
+      } else if (isDoubleArrow(element) && points.length >= 2) {
+        const halfGap = element.strokeWidth + 1;
+        const doublePoints = trimPointsForDoubleArrowheads(element, points);
+        shape = [
+          generator.curve(points as unknown as RoughPoint[], {
+            ...options,
+            stroke: "none",
+          }),
+          generator.curve(
+            offsetPolylinePoints(
+              doublePoints,
+              halfGap,
+            ) as unknown as RoughPoint[],
+            options,
+          ),
+          generator.curve(
+            offsetPolylinePoints(
+              doublePoints,
+              -halfGap,
+            ) as unknown as RoughPoint[],
+            options,
+          ),
+        ];
       } else {
         shape = [generator.curve(points as unknown as RoughPoint[], options)];
       }
@@ -1060,6 +1119,121 @@ const generateElbowArrowShape = (
   d.push(`L ${points[points.length - 1][0]} ${points[points.length - 1][1]}`);
 
   return d.join(" ");
+};
+
+/**
+ * Trims the ends of a polyline back by the length of the start/end arrowhead
+ * so that the parallel lines of a double-line arrow don't bleed into the
+ * arrowheads. Mirrors the sizing logic in `getArrowheadPoints`.
+ */
+const trimPointsForDoubleArrowheads = (
+  element: ExcalidrawLinearElement,
+  points: readonly LocalPoint[],
+): LocalPoint[] => {
+  if (element.type !== "arrow" || points.length < 2) {
+    return points.slice();
+  }
+
+  const { startArrowhead = null, endArrowhead = "arrow" } = element;
+  const trimmed = points.slice();
+
+  const trimLength = (arrowhead: Arrowhead, segmentLength: number) => {
+    const lengthMultiplier =
+      arrowhead === "diamond" || arrowhead === "diamond_outline" ? 0.25 : 0.5;
+    // matches the size bump for double-line arrows in `getArrowheadPoints`
+    const size = getArrowheadSize(arrowhead) + element.strokeWidth * 2;
+    const headLength = Math.min(size, segmentLength * lengthMultiplier);
+
+    // how far the head visually extends back from the tip along the line
+    const backExtent =
+      arrowhead === "bar"
+        ? 0
+        : arrowhead === "circle" || arrowhead === "circle_outline"
+        ? headLength / 2
+        : headLength;
+
+    // extra margin so the lines clear the stroked (and sloppy) head outline
+    const margin = element.strokeWidth * 1.5;
+
+    return Math.min(backExtent + margin, segmentLength * 0.75);
+  };
+
+  const trimEndpoint = (
+    endpointIdx: number,
+    neighborIdx: number,
+    arrowhead: Arrowhead,
+  ) => {
+    const endpoint = trimmed[endpointIdx];
+    const neighbor = trimmed[neighborIdx];
+    const dx = neighbor[0] - endpoint[0];
+    const dy = neighbor[1] - endpoint[1];
+    const segmentLength = Math.hypot(dx, dy);
+    if (segmentLength < 1e-6) {
+      return;
+    }
+    const t = trimLength(arrowhead, segmentLength) / segmentLength;
+    trimmed[endpointIdx] = pointFrom<LocalPoint>(
+      endpoint[0] + dx * t,
+      endpoint[1] + dy * t,
+    );
+  };
+
+  if (startArrowhead !== null) {
+    trimEndpoint(0, 1, startArrowhead);
+  }
+  if (endArrowhead != null) {
+    trimEndpoint(trimmed.length - 1, trimmed.length - 2, endArrowhead);
+  }
+
+  return trimmed;
+};
+
+/**
+ * Offsets a polyline perpendicularly by the given distance, using (clamped)
+ * mitered joints at the corners. Used to render the two parallel lines of
+ * double-line arrows.
+ */
+const offsetPolylinePoints = (
+  points: readonly LocalPoint[],
+  offset: number,
+): LocalPoint[] => {
+  if (points.length < 2) {
+    return points.slice();
+  }
+
+  // unit normals of each segment
+  const normals: [number, number][] = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const dx = points[i + 1][0] - points[i][0];
+    const dy = points[i + 1][1] - points[i][1];
+    const len = Math.hypot(dx, dy) || 1;
+    normals.push([-dy / len, dx / len]);
+  }
+
+  return points.map((p, i) => {
+    let nx: number;
+    let ny: number;
+
+    if (i === 0) {
+      [nx, ny] = normals[0];
+    } else if (i === points.length - 1) {
+      [nx, ny] = normals[normals.length - 1];
+    } else {
+      // average adjacent segment normals, then scale to miter length
+      nx = normals[i - 1][0] + normals[i][0];
+      ny = normals[i - 1][1] + normals[i][1];
+      const len = Math.hypot(nx, ny) || 1;
+      nx /= len;
+      ny /= len;
+      const dot = normals[i - 1][0] * nx + normals[i - 1][1] * ny;
+      // clamp the miter scale to avoid spikes at sharp corners
+      const scale = Math.min(Math.abs(dot) > 1e-6 ? 1 / dot : 1, 3);
+      nx *= scale;
+      ny *= scale;
+    }
+
+    return pointFrom<LocalPoint>(p[0] + nx * offset, p[1] + ny * offset);
+  });
 };
 
 /**

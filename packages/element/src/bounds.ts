@@ -1,4 +1,3 @@
-import rough from "roughjs/bin/rough";
 import {
   arrayToMap,
   type Bounds,
@@ -16,7 +15,10 @@ import {
 } from "@excalidraw/math";
 import { getCurvePathOps } from "@excalidraw/utils/shape";
 import { pointsOnBezierCurves } from "points-on-curve";
+import rough from "roughjs/bin/rough";
 
+import type { Mutable } from "@excalidraw/common/utility-types";
+import type { AppState } from "@excalidraw/excalidraw/types";
 import type {
   Curve,
   Degrees,
@@ -25,30 +27,26 @@ import type {
   LocalPoint,
   Radians,
 } from "@excalidraw/math";
-import type { AppState } from "@excalidraw/excalidraw/types";
-import type { Mutable } from "@excalidraw/common/utility-types";
 
-import { generateRoughOptions } from "./shape";
-import { ShapeCache } from "./shape";
+import { intersectElementWithLineSegment } from "./collision";
+import { elementOverlapsWithFrame, getContainingFrame } from "./frame";
 import { LinearElementEditor } from "./linearElementEditor";
+import { generateRoughOptions, getElementShape, ShapeCache } from "./shape";
 import { getBoundTextElement, getContainerElement } from "./textElement";
 import {
   isArrowElement,
   isBoundToContainer,
+  isExcalidrawElement,
   isFrameLikeElement,
   isFreeDrawElement,
   isLinearElement,
   isLineElement,
   isTextElement,
-  isExcalidrawElement,
 } from "./typeChecks";
-import { getElementShape } from "./shape";
 import {
   deconstructDiamondElement,
   deconstructRectanguloidElement,
 } from "./utils";
-import { intersectElementWithLineSegment } from "./collision";
-import { elementOverlapsWithFrame, getContainingFrame } from "./frame";
 
 import type { Drawable, Op } from "roughjs/bin/core";
 import type { Point as RoughPoint } from "roughjs/bin/geometry";
@@ -809,7 +807,11 @@ export const getArrowheadPoints = (
   const nx = (x2 - x1) / distance;
   const ny = (y2 - y1) / distance;
 
-  const size = getArrowheadSize(arrowhead);
+  // double-line arrows render two parallel lines around the centerline, so
+  // enlarge the head a bit to make sure it visually caps both lines
+  const size =
+    getArrowheadSize(arrowhead) +
+    (element.strokeStyle === "double" ? element.strokeWidth * 2 : 0);
 
   let length = 0;
 

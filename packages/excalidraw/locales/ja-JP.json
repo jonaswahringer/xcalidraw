@@ -54,6 +54,7 @@
     "arrowtype_sharp": "鋭い矢印",
     "arrowtype_round": "曲線矢印",
     "arrowtype_elbowed": "ひじ矢印",
+    "arrowtype_double": "二重矢印",
     "fontSize": "フォントの大きさ",
     "fontFamily": "フォントの種類",
     "addWatermark": "\"Made with Excalidraw\"と表示",

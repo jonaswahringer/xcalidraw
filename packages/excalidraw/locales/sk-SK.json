@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Ostrá šípka",
     "arrowtype_round": "Zakrivená šípka",
     "arrowtype_elbowed": "Zalomená šípka",
+    "arrowtype_double": "Dvojitá šípka",
     "fontSize": "Veľkosť písma",
     "fontFamily": "Písmo",
     "addWatermark": "Pridať \"Vytvorené s Excalidraw\"",

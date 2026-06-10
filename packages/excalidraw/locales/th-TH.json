@@ -54,6 +54,7 @@
     "arrowtype_sharp": "ลูกศรแหลม",
     "arrowtype_round": "ลูกศรโค้ง",
     "arrowtype_elbowed": "ลูกศรหักมุม",
+    "arrowtype_double": "ลูกศรคู่",
     "fontSize": "ขนาดตัวอักษร",
     "fontFamily": "แบบตัวอักษร",
     "addWatermark": "เพิ่มลายน้ำ \"สร้างด้วย Excalidraw\"",

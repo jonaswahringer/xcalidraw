@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Düz ok",
     "arrowtype_round": "Kavisli ok",
     "arrowtype_elbowed": "Köşeli ok",
+    "arrowtype_double": "Çift ok",
     "fontSize": "Yazı tipi boyutu",
     "fontFamily": "Yazı tipi ailesi",
     "addWatermark": "\"Excalidraw ile yapıldı\" yazısını ekle",

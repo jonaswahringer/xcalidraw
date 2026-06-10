@@ -54,6 +54,7 @@
     "arrowtype_sharp": "سهم حاد",
     "arrowtype_round": "سهم منحني",
     "arrowtype_elbowed": "سهم زاوي",
+    "arrowtype_double": "سهم مزدوج",
     "fontSize": "حجم الخط",
     "fontFamily": "نوع الخط",
     "addWatermark": "إضافة \"مصنوعة بواسطة Excalidraw\"",

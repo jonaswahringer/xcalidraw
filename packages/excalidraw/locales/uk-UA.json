@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Гостра стрілка",
     "arrowtype_round": "Вигнута стрілка",
     "arrowtype_elbowed": "Прямокутна стрілка",
+    "arrowtype_double": "Подвійна стрілка",
     "fontSize": "Розмір шрифту",
     "fontFamily": "Шрифт",
     "addWatermark": "Додати \"Зроблено з Excalidraw\"",

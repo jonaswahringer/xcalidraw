@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import {
   bumpVersion,
@@ -82,6 +82,7 @@ import "./ConvertElementTypePopup.scss";
 import { ToolButton } from "./ToolButton";
 import {
   DiamondIcon,
+  doubleArrowIcon,
   elbowArrowIcon,
   EllipseIcon,
   LineIcon,
@@ -111,6 +112,7 @@ const LINEAR_TYPES = [
   "sharpArrow",
   "curvedArrow",
   "elbowArrow",
+  "doubleArrow"
 ] as const;
 
 const CONVERTIBLE_GENERIC_TYPES: ReadonlySet<ConvertibleGenericTypes> = new Set(
@@ -297,6 +299,7 @@ const Panel = ({
           ["sharpArrow", sharpArrowIcon],
           ["curvedArrow", roundArrowIcon],
           ["elbowArrow", elbowArrowIcon],
+          ["doubleArrow", doubleArrowIcon],
         ]
       : conversionType === "generic"
       ? [
@@ -891,6 +894,16 @@ const convertElementType = <
             elbowed: true,
             fixedSegments: null,
             roundness: null,
+          }),
+        );
+      }
+      case "doubleArrow": {
+        return bumpVersion(
+          newArrowElement({
+            ...element,
+            type: "arrow",
+            elbowed: false,
+            strokeStyle: "double",
           }),
         );
       }

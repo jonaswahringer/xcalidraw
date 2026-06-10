@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Scharfer Pfeil",
     "arrowtype_round": "Gebogener Pfeil",
     "arrowtype_elbowed": "Ellenbogen-Pfeil",
+    "arrowtype_double": "Doppelter Pfeil",
     "fontSize": "Schriftgröße",
     "fontFamily": "Schriftfamilie",
     "addWatermark": "\"Made with Excalidraw\" hinzufügen",

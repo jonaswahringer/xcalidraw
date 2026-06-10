@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Flecha Afilada",
     "arrowtype_round": "Flecha Curva",
     "arrowtype_elbowed": "Flecha de codo",
+    "arrowtype_double": "Flecha doble",
     "fontSize": "Tamaño de la fuente",
     "fontFamily": "Tipo de fuente",
     "addWatermark": "Agregar \"Hecho con Excalidraw\"",

@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Freccia affilata",
     "arrowtype_round": "Freccia curva",
     "arrowtype_elbowed": "Freccia a gomito",
+    "arrowtype_double": "Freccia doppia",
     "fontSize": "Dimensione carattere",
     "fontFamily": "Carattere",
     "addWatermark": "Aggiungi \"Creato con Excalidraw\"",

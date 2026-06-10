@@ -3,26 +3,26 @@ import { pointFrom } from "@excalidraw/math";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
+  arrayToMap,
+  ARROW_TYPE,
   DEFAULT_ELEMENT_BACKGROUND_COLOR_PALETTE,
   DEFAULT_ELEMENT_BACKGROUND_PICKS,
   DEFAULT_ELEMENT_STROKE_COLOR_PALETTE,
   DEFAULT_ELEMENT_STROKE_PICKS,
-  ARROW_TYPE,
   DEFAULT_FONT_FAMILY,
   DEFAULT_FONT_SIZE,
   FONT_FAMILY,
+  FONT_SIZES,
+  getFontFamilyString,
+  getLineHeight,
+  invariant,
+  isTransparent,
+  KEYS,
+  randomInteger,
+  reduceToCommonValue,
   ROUNDNESS,
   STROKE_WIDTH,
   VERTICAL_ALIGN,
-  KEYS,
-  randomInteger,
-  arrayToMap,
-  getFontFamilyString,
-  getLineHeight,
-  isTransparent,
-  reduceToCommonValue,
-  invariant,
-  FONT_SIZES,
 } from "@excalidraw/common";
 
 import { canBecomePolygon, getNonDeletedElements } from "@excalidraw/element";
@@ -35,8 +35,7 @@ import {
 
 import { LinearElementEditor } from "@excalidraw/element";
 
-import { newElementWith } from "@excalidraw/element";
-import { getArrowheadForPicker } from "@excalidraw/element";
+import { getArrowheadForPicker, newElementWith } from "@excalidraw/element";
 
 import {
   getBoundTextElement,
@@ -56,9 +55,9 @@ import {
 import { hasStrokeColor } from "@excalidraw/element";
 
 import {
-  updateElbowArrowPoints,
   CaptureUpdateAction,
   toggleLinePolygonState,
+  updateElbowArrowPoints,
 } from "@excalidraw/element";
 
 import { deriveStylesPanelMode } from "@excalidraw/common";
@@ -82,55 +81,56 @@ import type { Scene } from "@excalidraw/element";
 import type { CaptureUpdateActionType } from "@excalidraw/element";
 
 import { trackEvent } from "../analytics";
-import { RadioSelection } from "../components/RadioSelection";
 import { ColorPicker } from "../components/ColorPicker/ColorPicker";
 import { FontPicker } from "../components/FontPicker/FontPicker";
 import { IconPicker } from "../components/IconPicker";
+import { RadioSelection } from "../components/RadioSelection";
 import { Range } from "../components/Range";
 import {
   ArrowheadArrowIcon,
   ArrowheadBarIcon,
-  ArrowheadCircleIcon,
-  ArrowheadTriangleIcon,
-  ArrowheadNoneIcon,
-  StrokeStyleDashedIcon,
-  StrokeStyleDottedIcon,
-  TextAlignTopIcon,
-  TextAlignBottomIcon,
-  TextAlignMiddleIcon,
-  FillHachureIcon,
-  FillCrossHatchIcon,
-  FillSolidIcon,
-  SloppinessArchitectIcon,
-  SloppinessArtistIcon,
-  SloppinessCartoonistIcon,
-  StrokeWidthBaseIcon,
-  StrokeWidthBoldIcon,
-  StrokeWidthExtraBoldIcon,
-  FontSizeSmallIcon,
-  FontSizeMediumIcon,
-  FontSizeLargeIcon,
-  FontSizeExtraLargeIcon,
-  EdgeSharpIcon,
-  EdgeRoundIcon,
-  TextAlignLeftIcon,
-  TextAlignCenterIcon,
-  TextAlignRightIcon,
-  FillZigZagIcon,
-  ArrowheadTriangleOutlineIcon,
-  ArrowheadCircleOutlineIcon,
-  ArrowheadDiamondIcon,
-  ArrowheadDiamondOutlineIcon,
-  fontSizeIcon,
-  sharpArrowIcon,
-  roundArrowIcon,
-  elbowArrowIcon,
   ArrowheadCardinalityExactlyOneIcon,
   ArrowheadCardinalityManyIcon,
   ArrowheadCardinalityOneIcon,
   ArrowheadCardinalityOneOrManyIcon,
   ArrowheadCardinalityZeroOrManyIcon,
   ArrowheadCardinalityZeroOrOneIcon,
+  ArrowheadCircleIcon,
+  ArrowheadCircleOutlineIcon,
+  ArrowheadDiamondIcon,
+  ArrowheadDiamondOutlineIcon,
+  ArrowheadNoneIcon,
+  ArrowheadTriangleIcon,
+  ArrowheadTriangleOutlineIcon,
+  doubleArrowIcon,
+  EdgeRoundIcon,
+  EdgeSharpIcon,
+  elbowArrowIcon,
+  FillCrossHatchIcon,
+  FillHachureIcon,
+  FillSolidIcon,
+  FillZigZagIcon,
+  FontSizeExtraLargeIcon,
+  fontSizeIcon,
+  FontSizeLargeIcon,
+  FontSizeMediumIcon,
+  FontSizeSmallIcon,
+  roundArrowIcon,
+  sharpArrowIcon,
+  SloppinessArchitectIcon,
+  SloppinessArtistIcon,
+  SloppinessCartoonistIcon,
+  StrokeStyleDashedIcon,
+  StrokeStyleDottedIcon,
+  StrokeWidthBaseIcon,
+  StrokeWidthBoldIcon,
+  StrokeWidthExtraBoldIcon,
+  TextAlignBottomIcon,
+  TextAlignCenterIcon,
+  TextAlignLeftIcon,
+  TextAlignMiddleIcon,
+  TextAlignRightIcon,
+  TextAlignTopIcon,
 } from "../components/icons";
 
 import { Fonts } from "../fonts";
@@ -143,8 +143,8 @@ import {
 } from "../scene";
 
 import {
-  withCaretPositionPreservation,
   restoreCaretPosition,
+  withCaretPositionPreservation,
 } from "../hooks/useTextEditorFocus";
 
 import { getShortcutKey } from "../shortcut";
@@ -1828,6 +1828,12 @@ export const actionChangeArrowType = register<keyof typeof ARROW_TYPE>({
                 type: ROUNDNESS.PROPORTIONAL_RADIUS,
               }
             : null,
+        strokeStyle:
+          value === ARROW_TYPE.double
+            ? "double"
+            : el.strokeStyle === "double"
+            ? "solid"
+            : el.strokeStyle,
         elbowed: value === ARROW_TYPE.elbow,
         angle: value === ARROW_TYPE.elbow ? (0 as Radians) : el.angle,
         points:
@@ -2015,6 +2021,12 @@ export const actionChangeArrowType = register<keyof typeof ARROW_TYPE>({
                 icon: elbowArrowIcon,
                 testId: "elbow-arrow",
               },
+              {
+                value: ARROW_TYPE.double,
+                text: t("labels.arrowtype_double"),
+                icon: doubleArrowIcon,
+                testId: "double-arrow",
+              },
             ]}
             value={getFormValue(
               elements,
@@ -2023,6 +2035,8 @@ export const actionChangeArrowType = register<keyof typeof ARROW_TYPE>({
                 if (isArrowElement(element)) {
                   return element.elbowed
                     ? ARROW_TYPE.elbow
+                    : element.strokeStyle === "double"
+                    ? ARROW_TYPE.double
                     : element.roundness
                     ? ARROW_TYPE.round
                     : ARROW_TYPE.sharp;

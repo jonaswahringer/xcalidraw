@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Flèche pointue",
     "arrowtype_round": "Flèche incurvée",
     "arrowtype_elbowed": "Flèche coudée",
+    "arrowtype_double": "Flèche double",
     "fontSize": "Taille de la police",
     "fontFamily": "Police",
     "addWatermark": "Ajouter \"Réalisé avec Excalidraw\"",

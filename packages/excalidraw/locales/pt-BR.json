@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Seta afiada",
     "arrowtype_round": "Seta curva",
     "arrowtype_elbowed": "Seta dobrada",
+    "arrowtype_double": "Seta dupla",
     "fontSize": "Tamanho da fonte",
     "fontFamily": "Família da fonte",
     "addWatermark": "Adicionar \"Feito com Excalidraw\"",

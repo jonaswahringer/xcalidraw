@@ -54,6 +54,7 @@
     "arrowtype_sharp": "Seta retilínea",
     "arrowtype_round": "Seta curva",
     "arrowtype_elbowed": "Seta em cotovelo",
+    "arrowtype_double": "Seta dupla",
     "fontSize": "Tamanho do tipo de letra",
     "fontFamily": "Família do tipo de letra",
     "addWatermark": "Adicionar \"Feito com Excalidraw\"",

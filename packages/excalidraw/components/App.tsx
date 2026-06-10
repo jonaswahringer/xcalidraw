@@ -5250,6 +5250,10 @@ class App extends React.Component<AppProps, AppState> {
                   ? ARROW_TYPE.round
                   : prevState.currentItemArrowType === ARROW_TYPE.round
                   ? ARROW_TYPE.elbow
+                  : prevState.currentItemArrowType === ARROW_TYPE.elbow
+                  ? ARROW_TYPE.double
+                  : prevState.currentItemArrowType === ARROW_TYPE.double
+                  ? ARROW_TYPE.sharp
                   : ARROW_TYPE.sharp,
             }));
           }
@@ -9508,7 +9512,10 @@ class App extends React.Component<AppProps, AppState> {
               backgroundColor: this.state.currentItemBackgroundColor,
               fillStyle: this.state.currentItemFillStyle,
               strokeWidth: this.state.currentItemStrokeWidth,
-              strokeStyle: this.state.currentItemStrokeStyle,
+              strokeStyle:
+                this.state.currentItemArrowType === ARROW_TYPE.double
+                  ? "double"
+                  : this.state.currentItemStrokeStyle,
               roughness: this.state.currentItemRoughness,
               opacity: this.state.currentItemOpacity,
               roundness:

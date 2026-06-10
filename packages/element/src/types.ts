@@ -25,7 +25,7 @@ export type GroupId = string;
 export type PointerType = "mouse" | "pen" | "touch";
 export type StrokeRoundness = "round" | "sharp";
 export type RoundnessType = ValueOf<typeof ROUNDNESS>;
-export type StrokeStyle = "solid" | "dashed" | "dotted";
+export type StrokeStyle = "solid" | "dashed" | "dotted" | "double";
 export type TextAlign = typeof TEXT_ALIGN[keyof typeof TEXT_ALIGN];
 
 type VerticalAlignKeys = keyof typeof VERTICAL_ALIGN;
@@ -441,7 +441,8 @@ export type ExcalidrawLinearElementSubType =
   | "line"
   | "sharpArrow"
   | "curvedArrow"
-  | "elbowArrow";
+  | "elbowArrow"
+  | "doubleArrow";
 
 export type ConvertibleGenericTypes = "rectangle" | "diamond" | "ellipse";
 export type ConvertibleLinearTypes = ExcalidrawLinearElementSubType;
