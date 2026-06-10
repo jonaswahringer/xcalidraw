@@ -18,6 +18,13 @@
       gap: 0.75rem;
     }
 
+    &__disclaimer {
+      margin: 1rem 0 0;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: var(--color-gray-60);
+    }
+
     &__btn {
       --background: var(--color-surface-mid);
 

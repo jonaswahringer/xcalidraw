@@ -12,51 +12,44 @@ import { getShortcutKey } from "../shortcut";
 
 import { useExcalidrawActionManager } from "./App";
 import { Dialog } from "./Dialog";
-import { ExternalLinkIcon, GithubIcon, youtubeIcon } from "./icons";
+import { GithubIcon } from "./icons";
 
 import "./HelpDialog.scss";
 
 import type { JSX } from "react";
 
 const Header = () => (
-  <div className="HelpDialog__header">
-    <a
-      className="HelpDialog__btn"
-      href="https://docs.excalidraw.com"
-      target="_blank"
-      rel="noopener"
-    >
-      <div className="HelpDialog__link-icon">{ExternalLinkIcon}</div>
-      {t("helpDialog.documentation")}
-    </a>
-    <a
-      className="HelpDialog__btn"
-      href="https://plus.excalidraw.com/blog"
-      target="_blank"
-      rel="noopener"
-    >
-      <div className="HelpDialog__link-icon">{ExternalLinkIcon}</div>
-      {t("helpDialog.blog")}
-    </a>
-    <a
-      className="HelpDialog__btn"
-      href="https://github.com/excalidraw/excalidraw/issues"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <div className="HelpDialog__link-icon">{GithubIcon}</div>
-      {t("helpDialog.github")}
-    </a>
-    <a
-      className="HelpDialog__btn"
-      href="https://youtube.com/@excalidraw"
-      target="_blank"
-      rel="noopener noreferrer"
-    >
-      <div className="HelpDialog__link-icon">{youtubeIcon}</div>
-      YouTube
-    </a>
-  </div>
+  <>
+    <div className="HelpDialog__header">
+      <a
+        className="HelpDialog__btn"
+        href="https://github.com/jonaswahringer/xcalidraw"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <div className="HelpDialog__link-icon">{GithubIcon}</div>
+        Fork
+      </a>
+      <a
+        className="HelpDialog__btn"
+        href="https://github.com/excalidraw/excalidraw"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <div className="HelpDialog__link-icon">{GithubIcon}</div>
+        Original
+      </a>
+    </div>
+    <p className="HelpDialog__disclaimer">
+      This is an independent, unofficial fork of Excalidraw.
+      <br />
+      Excalidraw is a project by its respective authors.
+      <br />
+      This site is not affiliated with or endorsed by Excalidraw.
+      <br />
+      Source code is licensed under the MIT License.
+    </p>
+  </>
 );
 
 const Section = (props: { title: string; children: React.ReactNode }) => (
