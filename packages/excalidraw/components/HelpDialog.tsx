@@ -19,7 +19,16 @@ import "./HelpDialog.scss";
 import type { JSX } from "react";
 
 const Header = () => (
-  <>
+  <div className="HelpDialog__footer-row">
+    <p className="HelpDialog__disclaimer">
+      This is an independent, unofficial fork of Excalidraw.
+      <br />
+      Excalidraw is a project by its respective authors.
+      <br />
+      This site is not affiliated with or endorsed by Excalidraw.
+      <br />
+      Source code is licensed under the MIT License.
+    </p>
     <div className="HelpDialog__header">
       <a
         className="HelpDialog__btn"
@@ -40,16 +49,7 @@ const Header = () => (
         Original
       </a>
     </div>
-    <p className="HelpDialog__disclaimer">
-      This is an independent, unofficial fork of Excalidraw.
-      <br />
-      Excalidraw is a project by its respective authors.
-      <br />
-      This site is not affiliated with or endorsed by Excalidraw.
-      <br />
-      Source code is licensed under the MIT License.
-    </p>
-  </>
+  </div>
 );
 
 const Section = (props: { title: string; children: React.ReactNode }) => (
