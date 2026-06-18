@@ -53,9 +53,9 @@ export type BackupStatus = {
 let backupInProgress = false;
 let backupPending = false;
 let backupPendingForce = false;
-let lastChangeAt: number | null = null;
 let excalidrawAPIRef: ExcalidrawImperativeAPI | null = null;
 const lastBackupHashByPageId = new Map<string, string>();
+const lastBackupFingerprintByPageId = new Map<string, string>();
 
 const statusListeners = new Set<(status: BackupStatus) => void>();
 
@@ -160,10 +160,17 @@ export const registerBackupClient = (
 };
 
 const scheduleBackup = debounce(() => {
-  setStatus({ saveState: "saving", debounceStartedAt: null });
-  if (excalidrawAPIRef) {
-    void runPeriodicBackup(excalidrawAPIRef);
+  if (!excalidrawAPIRef || !isPeriodicBackupEnabled()) {
+    return;
   }
+
+  if (!hasBackupContentChangedSinceLastBackup(excalidrawAPIRef)) {
+    setStatus({ saveState: "idle", debounceStartedAt: null });
+    return;
+  }
+
+  setStatus({ saveState: "saving", debounceStartedAt: null });
+  void runPeriodicBackup(excalidrawAPIRef);
 }, BACKUP_DEBOUNCE_MS);
 
 export const flushScheduledBackup = () => {
@@ -175,10 +182,14 @@ export const flushScheduledBackup = () => {
 };
 
 export const markBackupDirty = () => {
-  if (!isPeriodicBackupEnabled()) {
+  if (!isPeriodicBackupEnabled() || !excalidrawAPIRef) {
     return;
   }
-  lastChangeAt = Date.now();
+
+  if (!hasBackupContentChangedSinceLastBackup(excalidrawAPIRef)) {
+    return;
+  }
+
   setStatus({
     saveState: backupInProgress ? "saving" : "pending",
     debounceStartedAt: Date.now(),
@@ -187,11 +198,11 @@ export const markBackupDirty = () => {
 };
 
 export const hasUnbackedUpChanges = () => {
-  if (!isPeriodicBackupEnabled() || lastChangeAt === null) {
+  if (!isPeriodicBackupEnabled() || !excalidrawAPIRef) {
     return false;
   }
 
-  return status.lastBackupAt === null || lastChangeAt > status.lastBackupAt;
+  return hasBackupContentChangedSinceLastBackup(excalidrawAPIRef);
 };
 
 export const isBackupRunning = () => backupInProgress;
@@ -250,6 +261,60 @@ const hashBackupContent = async (content: string) => {
 const sanitizeFilename = (name: string) => {
   const sanitized = name.replace(/[/\\?%*:|"<>]/g, "-").trim();
   return sanitized || "Untitled";
+};
+
+/** Filesystem-safe timestamp for backup filenames, e.g. `2025-06-18-14-30-45`. */
+const formatBackupTimestamp = (date = new Date()) => {
+  const pad = (value: number) => String(value).padStart(2, "0");
+
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate()),
+    pad(date.getHours()),
+    pad(date.getMinutes()),
+    pad(date.getSeconds()),
+  ].join("-");
+};
+
+/**
+ * Lightweight sync fingerprint of backup-relevant page content (elements +
+ * exportable app state). Viewport-only changes (scroll/zoom) are excluded via
+ * `cleanAppStateForExport`.
+ */
+const getPageBackupFingerprint = (page: PageSnapshot) => {
+  const elements = getNonDeletedElements(page.elements);
+  const elementSignature = elements
+    .map((element) => `${element.id}:${element.version}:${element.updated}`)
+    .sort()
+    .join("|");
+  const appStateSignature = JSON.stringify(
+    cleanAppStateForExport(page.appState),
+  );
+
+  return `${elementSignature}::${appStateSignature}`;
+};
+
+const hasBackupContentChangedSinceLastBackup = (
+  excalidrawAPI: ExcalidrawImperativeAPI,
+) => {
+  const pages = excalidrawAPI.getPageSnapshots();
+  const currentPageIds = new Set(pages.map((page) => page.id));
+
+  for (const pageId of lastBackupFingerprintByPageId.keys()) {
+    if (!currentPageIds.has(pageId)) {
+      return true;
+    }
+  }
+
+  for (const page of pages) {
+    const fingerprint = getPageBackupFingerprint(page);
+    if (lastBackupFingerprintByPageId.get(page.id) !== fingerprint) {
+      return true;
+    }
+  }
+
+  return false;
 };
 
 const buildPageFilenames = (pages: readonly PageSnapshot[]) => {
@@ -354,11 +419,16 @@ const writeSerializedBackup = async (
   await writable.close();
 };
 
-const pruneStalePageHashes = (pages: readonly PageSnapshot[]) => {
+const pruneStalePageBackupState = (pages: readonly PageSnapshot[]) => {
   const currentPageIds = new Set(pages.map((page) => page.id));
   for (const pageId of lastBackupHashByPageId.keys()) {
     if (!currentPageIds.has(pageId)) {
       lastBackupHashByPageId.delete(pageId);
+    }
+  }
+  for (const pageId of lastBackupFingerprintByPageId.keys()) {
+    if (!currentPageIds.has(pageId)) {
+      lastBackupFingerprintByPageId.delete(pageId);
     }
   }
 };
@@ -425,6 +495,7 @@ const finishPickingBackupDirectory = async (
     await storeDirectoryHandle(dirHandle);
     localStorage.setItem(PERIODIC_BACKUP_ENABLED_KEY, "true");
     lastBackupHashByPageId.clear();
+    lastBackupFingerprintByPageId.clear();
     setStatus({
       enabled: true,
       saveState: "idle",
@@ -448,6 +519,7 @@ export const disablePeriodicBackup = async () => {
   localStorage.removeItem(PERIODIC_BACKUP_ENABLED_KEY);
   await clearStoredDirectoryHandle();
   lastBackupHashByPageId.clear();
+  lastBackupFingerprintByPageId.clear();
   setStatus({
     enabled: false,
     saveState: "idle",
@@ -560,6 +632,7 @@ const performBackup = async (
     const pages = clonePageSnapshots(excalidrawAPI.getPageSnapshots());
     const filenames = buildPageFilenames(pages);
     const inMemoryFiles = excalidrawAPI.getFiles();
+    const backupTimestamp = formatBackupTimestamp();
     let wroteAnyPage = false;
 
     for (let index = 0; index < pages.length; index++) {
@@ -577,14 +650,16 @@ const performBackup = async (
         continue;
       }
 
-      await writeSerializedBackup(dirHandle, filenames[index], serialized);
+      const timestampedFilename = `${filenames[index]}-${backupTimestamp}`;
+      await writeSerializedBackup(dirHandle, timestampedFilename, serialized);
       lastBackupHashByPageId.set(page.id, hash);
+      lastBackupFingerprintByPageId.set(page.id, getPageBackupFingerprint(page));
       wroteAnyPage = true;
     }
 
-    pruneStalePageHashes(pages);
+    pruneStalePageBackupState(pages);
 
-    if (wroteAnyPage || pages.length > 0) {
+    if (wroteAnyPage) {
       setStatus({
         lastBackupAt: Date.now(),
         lastError: null,

@@ -97,11 +97,11 @@ import { AppFooter } from "./components/AppFooter";
 import { AppMainMenu } from "./components/AppMainMenu";
 import { AppWelcomeScreen } from "./components/AppWelcomeScreen";
 import { BackupProgressIndicator } from "./components/BackupProgressIndicator";
-import { PageHeading } from "./components/PageHeading";
 import {
   ExportToExcalidrawPlus,
   exportToExcalidrawPlus,
 } from "./components/ExportToExcalidrawPlus";
+import { PageHeading } from "./components/PageHeading";
 import { TopErrorBoundary } from "./components/TopErrorBoundary";
 import CustomStats from "./CustomStats";
 
@@ -147,13 +147,13 @@ import {
   importPagesFromLocalStorage,
   savePagesToLocalStorage,
 } from "./data/pagesStorage";
-import { usePeriodicBackup } from "./hooks/usePeriodicBackup";
 import {
   flushScheduledBackup,
   markBackupDirty,
   runPeriodicBackup,
   shouldPreventUnloadForBackup,
 } from "./data/periodicBackup";
+import { usePeriodicBackup } from "./hooks/usePeriodicBackup";
 
 import type { CollabAPI } from "./collab/Collab";
 
